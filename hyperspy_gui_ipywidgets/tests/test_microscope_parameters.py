@@ -1,7 +1,7 @@
 from numpy.random import random
 
 import hyperspy.api as hs
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 from hyperspy._signals.eels import EELSTEMParametersUI
 from hyperspy._signals.eds_sem import EDSSEMParametersUI
 from hyperspy._signals.eds_tem import EDSTEMParametersUI

@@ -3,7 +3,7 @@ import numpy.testing
 import numpy.random
 
 import hyperspy.api as hs
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 from hyperspy.signal_tools import Signal1DCalibration
 from hyperspy.signal_tools import ImageContrastEditor
 

@@ -1,8 +1,8 @@
 import ipywidgets
 
-from hyperspy.gui_ipywidgets.utils import (
+from hyperspy_gui_ipywidgets.utils import (
     labelme, register_ipy_widget, add_display_arg)
-from hyperspy.link_traits.link_traits import link
+from link_traits import link
 
 
 @register_ipy_widget(toolkey="navigation_sliders")

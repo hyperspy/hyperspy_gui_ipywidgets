@@ -7,8 +7,8 @@ from ipywidgets import (
     Button)
 import numpy as np
 
-from hyperspy.link_traits.link_traits import link, dlink
-from hyperspy.gui_ipywidgets.utils import (
+from link_traits import link, dlink
+from hyperspy_gui_ipywidgets.utils import (
     add_display_arg, register_ipy_widget, labelme)
 
 

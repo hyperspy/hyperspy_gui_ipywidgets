@@ -2,7 +2,7 @@
 import numpy as np
 
 import hyperspy.api as hs
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 
 
 def test_span_roi():

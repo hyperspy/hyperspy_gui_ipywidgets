@@ -3,7 +3,7 @@ from numpy.random import random, uniform
 import ipywidgets
 
 import hyperspy.api as hs
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 
 
 def test_preferences():

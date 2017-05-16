@@ -1,7 +1,7 @@
 import numpy as np
 
 import hyperspy.api as hs
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 
 
 def check_axis_attributes(axes_manager, widgets_dict, index, attributes):

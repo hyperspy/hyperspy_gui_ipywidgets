@@ -4,7 +4,7 @@ from numpy.random import random
 
 import hyperspy.api as hs
 from hyperspy.component import Component, Parameter
-from hyperspy.gui_ipywidgets.tests.utils import KWARGS
+from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 from hyperspy.models.model1d import ComponentFit
 
 
