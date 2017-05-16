@@ -1,3 +1,6 @@
+
+__version__ = 1.3
+
 # Importing as below registers the widgets when importing the module
 import hyperspy_gui_ipywidgets.axes
 import hyperspy_gui_ipywidgets.model
