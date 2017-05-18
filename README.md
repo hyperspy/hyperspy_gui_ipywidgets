@@ -1,4 +1,4 @@
-# link_traits
+# hyperspy_gui_ipywidgets
 [![Build Status](https://travis-ci.org/hyperspy/hyperspy_gui_ipywidgets.svg?branch=master)](https://travis-ci.org/hyperspy/hyperspy_gui_ipywidgets)
 
 
