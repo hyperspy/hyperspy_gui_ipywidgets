@@ -43,7 +43,7 @@ Please refer to the [HyperSpy documentation](http://hyperspy.org/hyperspy-doc/cu
 import hyperspy.api as hs
 hs.preferences.gui(toolkit="ipywidgets")
 ```
-![alt text](https://github.com/hyperspy/hyperspy_gui_ipywidgets/raw/master/src/common/images/preferences_gui.png "HyperSpy preferences ipywidget")
+![alt text](https://github.com/hyperspy/hyperspy_gui_ipywidgets/raw/master/images/preferences_gui.png "HyperSpy preferences ipywidget")
 
 
 ## Development
