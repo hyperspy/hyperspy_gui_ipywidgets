@@ -11,6 +11,7 @@ install:
     - pip install https://github.com/hyperspy/link_traits/archive/master.zip
     - pip install https://github.com/francisco-dlp/hyperspy/archive/ipywidgets.zip
     - pip install .[test]
+    - export MPLBACKEND=agg
     - pip install pytest-cov codecov --upgrade
 script:
     - py.test --cov=hyperspy_gui_ipywidgets -v --pyargs hyperspy_gui_ipywidgets
