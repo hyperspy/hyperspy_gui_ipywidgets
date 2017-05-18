@@ -8,6 +8,7 @@ python:
 sudo: false
 install:
     - pip install --upgrade pip
+    - pip install https://github.com/hyperspy/link_traits/archive/master.zip
     - pip install https://github.com/francisco-dlp/hyperspy/archive/ipywidgets.zip
     - pip install .[test]
     - pip install pytest-cov codecov --upgrade
