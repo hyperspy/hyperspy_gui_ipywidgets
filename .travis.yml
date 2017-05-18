@@ -1,0 +1,20 @@
+language: python
+python:
+    - "nightly"
+    - 3.5
+    - 3.4
+    - 3.3
+    - 3.6-dev
+sudo: false
+install:
+    - pip install --upgrade pip
+    - pip install https://github.com/francisco-dlp/hyperspy/archive/ipywidgets.zip
+    - pip install .[test]
+    - pip install pytest-cov codecov --upgrade
+script:
+    - py.test --cov=hyperspy_gui_ipywigets -v --pyargs hyperspy_gui_ipywigets
+after_success:
+    - codecov
+matrix:
+    allow_failures:
+        - python: "nightly"
