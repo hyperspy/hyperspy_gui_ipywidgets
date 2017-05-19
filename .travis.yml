@@ -1,0 +1,21 @@
+language: python
+python:
+    - "nightly"
+    - 3.5
+    - 3.4
+    - 3.6-dev
+sudo: false
+install:
+    - pip install --upgrade pip
+    - pip install https://github.com/hyperspy/link_traits/archive/master.zip
+    - pip install https://github.com/francisco-dlp/hyperspy/archive/ipywidgets.zip
+    - pip install .[test]
+    - export MPLBACKEND=agg
+    - pip install pytest-cov codecov --upgrade
+script:
+    - py.test --cov=hyperspy_gui_ipywidgets -v --pyargs hyperspy_gui_ipywidgets
+after_success:
+    - codecov
+matrix:
+    allow_failures:
+        - python: "nightly"
