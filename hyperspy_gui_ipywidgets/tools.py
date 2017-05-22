@@ -42,7 +42,6 @@ def interactive_range_ipy(obj, **kwargs):
     link((axis, "units"), (units, "value"))
 
     def on_apply_clicked(b):
-        obj = obj
         if obj.ss_left_value != obj.ss_right_value:
             obj.span_selector_switch(False)
             for method, cls in obj.on_close:
