@@ -1,10 +1,7 @@
-import functools
-
-from traitlets import TraitError as TraitletError
 import ipywidgets
 from ipywidgets import (
-    Accordion, FloatSlider, FloatText, Layout, HBox, VBox, Checkbox, Label,
-    Button)
+    Accordion, FloatSlider, FloatText, Layout, HBox, VBox, Checkbox, Button,
+    HTML)
 import numpy as np
 
 from link_traits import link, dlink
@@ -252,7 +249,7 @@ def fit_component_ipy(obj, **kwargs):
     wdict = {}
     only_current = Checkbox()
     wdict["only_current"] = only_current
-    help = Label(
+    help = HTML(
         "Click on the signal figure and drag to the right to select a"
         "range. Press `Fit` to fit the component in that range. If only "
         "current is unchecked the fit is performed in the whole dataset.",
