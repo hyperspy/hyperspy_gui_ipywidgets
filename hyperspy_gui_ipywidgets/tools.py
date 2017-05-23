@@ -1,5 +1,6 @@
 import ipywidgets
 import traitlets
+import traits.api as t
 
 from hyperspy_gui_ipywidgets.utils import (
     labelme, labelme_sandwich, enum2dropdown, add_display_arg,
@@ -106,6 +107,14 @@ def calibrate_ipy(obj, **kwargs):
     link((obj, "scale"), (scale, "value"))
 
     def on_apply_clicked(b):
+        if (new_left.value, new_right.value) != (0, 0):
+            # traitlets does not support undefined, therefore we need to makes
+            # sure that the values are updated in the obj if they make sense
+            if new_left.value == 0 and obj.left_value is t.Undefined:
+                obj.left_value = 0
+            elif new_right.value == 0 and obj.right_value is t.Undefined:
+                obj.right_value = 0
+            # This is the default value, we need to update
         obj.apply()
     apply.on_click(on_apply_clicked)
 

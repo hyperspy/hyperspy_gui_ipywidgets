@@ -25,8 +25,6 @@ class TestTools:
         wd["new_left"].value = 0
         wd["new_right"].value = 10
         wd["units"].value = "nm"
-        assert wd["offset"].value == 0
-        assert wd["scale"].value == 1
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
         assert s.axes_manager[0].scale == 1
         assert s.axes_manager[0].offset == 0
@@ -37,14 +35,14 @@ class TestTools:
         wd = s.calibrate(**KWARGS)["ipywidgets"]["wdict"]
         wd["left"].value = 10
         wd["right"].value = 30
-        wd["new_left"].value = 0
-        wd["new_right"].value = 10
+        wd["new_left"].value = 1
+        wd["new_right"].value = 11
         wd["units"].value = "nm"
-        assert wd["offset"].value == 0
+        assert wd["offset"].value == 1
         assert wd["scale"].value == 1
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
         assert s.axes_manager[0].scale == 1
-        assert s.axes_manager[0].offset == 0
+        assert s.axes_manager[0].offset == 1
         assert s.axes_manager[0].units == "nm"
 
     def test_smooth_sg(self):
