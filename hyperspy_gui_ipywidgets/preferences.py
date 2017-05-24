@@ -69,7 +69,7 @@ def show_preferences_widget(obj, **kwargs):
             link((getattr(obj, tab), trait_name),
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
-    titles = ["General", "EELS", "EDS"]
+    titles = ["General", "GUIs", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
         children=[ipytabs[title.replace(" ", "")] for title in titles],
         titles=titles)
