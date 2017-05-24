@@ -36,7 +36,7 @@ py.test --pyargs hyperspy_gui_ipywidgets
 
 ## Usage
 
-Please refer to the [HyperSpy documentation](http://hyperspy.org/hyperspy-doc/current/index.html) for details. Example (to run in the [Jupyter Notebook]()):
+Please refer to the [HyperSpy documentation](http://hyperspy.org/hyperspy-doc/current/index.html) for details. Example (to run in the [Jupyter Notebook](http://jupyter.org/)):
 
 ```python
 
