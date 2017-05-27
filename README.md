@@ -21,7 +21,7 @@ pip install hyperspy_gui_ipywidgets
 Install anaconda for your platform and run
 
 ```bash
-conda install hyperspy_gui_ipywidgets -c conda-forge
+conda install hyperspy-gui-ipywidgets -c conda-forge
 
 ```
 
