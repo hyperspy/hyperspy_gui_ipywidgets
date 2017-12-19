@@ -66,6 +66,71 @@ def interactive_range_ipy(obj, **kwargs):
     }
 
 
+@register_ipy_widget(toolkey="Signal2D.calibrate")
+@add_display_arg
+def calibrate2d_ipy(obj, **kwargs):
+    # Define widgets
+    wdict = {}
+    length = ipywidgets.FloatText(disabled=True, description="Current length")
+    scale = ipywidgets.FloatText(disabled=True, description="Scale")
+    new_length = ipywidgets.FloatText(disabled=False, description="New length")
+    units = ipywidgets.Text(description="Units", )
+    unitsl = ipywidgets.Label(layout=ipywidgets.Layout(width="10%"))
+    help = ipywidgets.HTML(
+        "Click on the signal figure and drag line to some feature with a "
+        "known size. Set the new length, then press `Apply` to update both "
+        "the x- and y-dimensions in the signal, or press `Close` to cancel. "
+        "The units can also be set with `Units`",)
+    wdict["help"] = help
+    help = ipywidgets.Accordion(children=[help])
+    help.set_title(0, "Help")
+    close = ipywidgets.Button(
+        description="Close",
+        tooltip="Close widget and remove line from the signal figure.")
+    apply = ipywidgets.Button(
+        description="Apply",
+        tooltip="Set the x- and y-scaling with the `scale` value.")
+
+    # Connect
+    link((obj, "length"), (length, "value"))
+    link((obj, "new_length"), (new_length, "value"))
+    link((obj, "units"), (units, "value"))
+    link((obj, "units"), (unitsl, "value"))
+    link((obj, "scale"), (scale, "value"))
+
+    def on_apply_clicked(b):
+        obj.apply()
+        obj.on = False
+        box.close()
+    apply.on_click(on_apply_clicked)
+
+    box = ipywidgets.VBox([
+        ipywidgets.HBox([new_length, unitsl]),
+        length,
+        scale,
+        units,
+        help,
+        ipywidgets.HBox((apply, close))
+    ])
+
+    def on_close_clicked(b):
+        obj.on = False
+        box.close()
+    close.on_click(on_close_clicked)
+
+    wdict["length"] = length
+    wdict["scale"] = scale
+    wdict["new_length"] = new_length
+    wdict["units"] = units
+    wdict["close_button"] = close
+    wdict["apply_button"] = apply
+
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
+
+
 @register_ipy_widget(toolkey="Signal1D.calibrate")
 @add_display_arg
 def calibrate_ipy(obj, **kwargs):
