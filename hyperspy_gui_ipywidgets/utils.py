@@ -64,6 +64,14 @@ def float2floattext(trait, label):
     return labelme(widget=widget, label=label)
 
 
+def str2text(trait, label):
+    description = trait.desc if trait.desc else ""
+    widget = ipywidgets.Text(
+        description=description,
+    )
+    return labelme(widget=widget, label=label)
+
+
 def add_display_arg(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
