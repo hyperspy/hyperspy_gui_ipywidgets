@@ -118,23 +118,20 @@ def ipy_axes_gui(obj, **kwargs):
     wdict = {}
     nav_widgets = []
     sig_widgets = []
-    i = 0
-    for axis in obj.navigation_axes:
+    for i, axis in enumerate(obj.navigation_axes):
         wd = _get_axis_widgets(axis, display=False)
-        nav_widgets.append(wd["widget"])
+        accord = ipywidgets.Accordion([wd["widget"]])
+        accord.set_title(0, "Axis {}".format(i))
+        nav_widgets.append(accord)
         wdict["axis{}".format(i)] = wd["wdict"]
-        i += 1
     for j, axis in enumerate(obj.signal_axes):
         wd = _get_axis_widgets(axis, display=False)
-        sig_widgets.append(wd["widget"])
-        wdict["axis{}".format(i + j)] = wd["wdict"]
-    nav_accordion = ipywidgets.Accordion(nav_widgets)
-    sig_accordion = ipywidgets.Accordion(sig_widgets)
-    i = 0  # For when there is not navigation axes
-    for i in range(obj.navigation_dimension):
-        nav_accordion.set_title(i, "Axis %i" % i)
-    for j in range(obj.signal_dimension):
-        sig_accordion.set_title(j, "Axis %i" % (i + j + 1))
+        accord = ipywidgets.Accordion([wd["widget"]])
+        accord.set_title(0, "Axis {}".format(i + j + 1))
+        sig_widgets.append(accord)
+        wdict["axis{}".format(i + j + 1)] = wd["wdict"]
+    nav_accordion = ipywidgets.VBox(nav_widgets)
+    sig_accordion = ipywidgets.VBox(sig_widgets)
     tabs = ipywidgets.HBox([nav_accordion, sig_accordion])
     return {
         "widget": tabs,
