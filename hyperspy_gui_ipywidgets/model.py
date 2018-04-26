@@ -257,6 +257,7 @@ def fit_component_ipy(obj, **kwargs):
     wdict["help"] = only_current
     help = Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
     link((obj, "only_current"), (only_current, "value"))
     fit = Button(
         description="Fit",

@@ -24,6 +24,7 @@ def interactive_range_ipy(obj, **kwargs):
         "range. Press `Apply` to perform the operation or `Close` to cancel.",)
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -88,6 +89,7 @@ def calibrate_ipy(obj, **kwargs):
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -355,6 +357,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -417,6 +420,7 @@ def remove_background_ipy(obj, **kwargs):
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -487,6 +491,7 @@ def spikes_removal_ipy(obj, **kwargs):
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
+    help.selected_index = None # Collapse accordion
 
     show_diff = ipywidgets.Button(
         description="Show derivative histogram",
@@ -563,6 +568,7 @@ def spikes_removal_ipy(obj, **kwargs):
             labelme("Spline order", spline_order), ]),))
 
     advanced.set_title(0, "Advanced settings")
+    advanced.selected_index = None # Collapse accordion
     box = ipywidgets.VBox([
         ipywidgets.VBox([
             show_diff,
