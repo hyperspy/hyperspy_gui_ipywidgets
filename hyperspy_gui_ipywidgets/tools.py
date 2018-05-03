@@ -1,10 +1,8 @@
 import ipywidgets
-import traitlets
 import traits.api as t
 
-from hyperspy_gui_ipywidgets.utils import (
-    labelme, labelme_sandwich, enum2dropdown, add_display_arg,
-    register_ipy_widget)
+from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
+        add_display_arg, register_ipy_widget)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
 from hyperspy.signal_tools import SPIKES_REMOVAL_INSTRUCTIONS
