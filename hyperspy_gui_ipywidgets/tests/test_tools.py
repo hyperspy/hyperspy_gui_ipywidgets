@@ -1,17 +1,15 @@
 import numpy as np
-import numpy.testing
-import numpy.random
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 from hyperspy.signal_tools import Signal1DCalibration
-from hyperspy.signal_tools import ImageContrastEditor
 
 
 class TestTools:
 
     def setup_method(self, method):
         self.s = hs.signals.Signal1D(1 + np.arange(100)**2)
+        self.s.change_dtype('float')
         self.s.axes_manager[0].offset = 10
         self.s.axes_manager[0].scale = 2
         self.s.axes_manager[0].units = "m"
