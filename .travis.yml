@@ -9,7 +9,8 @@ install:
     - pip install --upgrade pip
     - pip install https://github.com/hyperspy/link_traits/archive/master.zip
     - pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
-    - pip install .[test]
+    - pip install ipywidgets
+    - pip install --no-deps .
     - export MPLBACKEND=agg
     - pip install pytest-cov codecov --upgrade
 script:
