@@ -2,13 +2,12 @@ language: python
 python:
     - "nightly"
     - 3.5
-    - 3.4
-    - 3.6-dev
+    - 3.6
 sudo: false
 install:
     - pip install --upgrade pip
     - pip install https://github.com/hyperspy/link_traits/archive/master.zip
-    - pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+    - pip install https://github.com/francisco-dlp/hyperspy/archive/RELEASE_v1.4.zip
     - pip install .[test]
     - export MPLBACKEND=agg
     - pip install pytest-cov codecov --upgrade
