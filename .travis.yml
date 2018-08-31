@@ -2,8 +2,7 @@ language: python
 python:
     - "nightly"
     - 3.5
-    - 3.4
-    - 3.6-dev
+    - 3.6
 sudo: false
 install:
     - pip install --upgrade pip
