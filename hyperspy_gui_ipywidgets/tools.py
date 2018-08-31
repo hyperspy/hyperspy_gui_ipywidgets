@@ -406,12 +406,17 @@ def remove_background_ipy(obj, **kwargs):
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
     fast = ipywidgets.Checkbox(description="Fast")
+    zero_fill = ipywidgets.Checkbox(description="Zero Fill")
     help = ipywidgets.HTML(
-        "Click on the signal figure and drag to the right to select a"
+        "Click on the signal figure and drag to the right to select a "
         "range. Press `Apply` to remove the background in the whole dataset. "
-        "If fast is checked, the background parameters are estimated using a "
-        "fast (analytical) method that can compromise accuray. When unchecked "
-        "non linear least squares is employed instead.",)
+        "If \"Fast\" is checked, the background parameters are estimated "
+        "using a fast (analytical) method that can compromise accuracy. "
+        "When unchecked, non-linear least squares is employed instead. "
+        "If \"Zero Fill\" is checked, all the channels prior to the fitting "
+        "region will be set to zero. "
+        "Otherwise the background subtraction will be performed in the "
+        "pre-fitting region as well.",)
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
@@ -441,9 +446,11 @@ def remove_background_ipy(obj, **kwargs):
     enable_poly_order(change=Dummy())
     link((obj, "polynomial_order"), (polynomial_order, "value"))
     link((obj, "fast"), (fast, "value"))
+    link((obj, "zero_fill"), (zero_fill, "value"))
     wdict["left"] = left
     wdict["right"] = right
     wdict["fast"] = fast
+    wdict["zero_fill"] = zero_fill
     wdict["polynomial_order"] = polynomial_order
     wdict["background_type"] = background_type
     wdict["apply_button"] = apply
@@ -452,6 +459,7 @@ def remove_background_ipy(obj, **kwargs):
         background_type,
         polynomial_order,
         fast,
+        zero_fill,
         help,
         ipywidgets.HBox((apply, close)),
     ])
