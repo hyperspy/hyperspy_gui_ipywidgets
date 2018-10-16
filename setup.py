@@ -14,7 +14,8 @@ here = path.abspath(path.dirname(__file__))
 try:
     import pypandoc
     long_description = pypandoc.convert('README.md', 'rst')
-except ImportError:
+    # if pandoc is not installed: raise an OSError
+except (ImportError, OSError):
     with open(path.join(here, 'README.md'), encoding='utf-8') as f:
         long_description = f.read()
 
