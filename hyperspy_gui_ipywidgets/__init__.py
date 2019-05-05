@@ -1,5 +1,5 @@
 
-__version__ = "1.2.dev"
+from hyperspy_gui_ipywidgets.version import __version__
 import hyperspy.api_nogui # necessary to register the toolkeys
 # Importing as below registers the widgets when importing the module
 import hyperspy_gui_ipywidgets.axes
