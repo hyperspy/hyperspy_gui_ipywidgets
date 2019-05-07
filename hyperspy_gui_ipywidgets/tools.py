@@ -587,3 +587,196 @@ def spikes_removal_ipy(obj, **kwargs):
         "widget": box,
         "wdict": wdict,
     }
+
+@register_ipy_widget(toolkey="Signal2D.find_peaks2D")
+@add_display_arg
+def find_peaks2D_ipy(obj, **kwargs):
+    wdict = {}
+    # Define widgets
+    # For "local max" method
+    local_max_distance = ipywidgets.IntSlider(min=1, max=20, value=3)
+    local_max_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    # For "max" method
+    max_alpha = ipywidgets.FloatSlider(min=0, max=6, value=3)
+    max_size = ipywidgets.IntSlider(min=1, max=20, value=10)
+    # For "minmax" method
+    minmax_separation = ipywidgets.FloatSlider(min=0, max=6, value=3)
+    minmax_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    # For "Zaefferer" method
+    zaefferer_grad_threshold = ipywidgets.FloatSlider(min=0, max=0.2,
+                                                      value=0.1, step=0.2*1E-1)
+    zaefferer_window_size = ipywidgets.IntSlider(min=2, max=80, value=40)
+    zaefferer_distance_cutoff = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    # For "stat" method
+    stat_alpha = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    stat_window_radius = ipywidgets.IntSlider(min=5, max=20, value=10)
+    stat_convergence_ratio = ipywidgets.FloatSlider(min=0, max=0.1, value=0.05)
+    # For "Laplacian of Gaussians" method
+    log_min_sigma = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    log_max_sigma = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    log_num_sigma = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    log_threshold = ipywidgets.FloatSlider(min=0, max=0.4, value=0.2)
+    log_overlap = ipywidgets.FloatSlider(min=0, max=1, value=0.5)
+    log_log_scale = ipywidgets.Checkbox()
+    # For "Difference of Gaussians" method
+    dog_min_sigma = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    dog_max_sigma = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    dog_sigma_ratio = ipywidgets.FloatSlider(min=0, max=3.2, value=1.6)
+    dog_threshold = ipywidgets.FloatSlider(min=0, max=0.4, value=0.2)
+    dog_overlap = ipywidgets.FloatSlider(min=0, max=1, value=0.5)
+
+    wdict["local_max_distance"] = local_max_distance
+    wdict["local_max_threshold"] = local_max_threshold
+    wdict["max_alpha"] = max_alpha
+    wdict["max_size"] = max_size
+    wdict["minmax_separation"] = minmax_separation
+    wdict["minmax_threshold"] = minmax_threshold
+    wdict["zaefferer_grad_threshold"] = zaefferer_grad_threshold
+    wdict["zaefferer_window_size"] = zaefferer_window_size
+    wdict["zaefferer_distance_cutoff"] = zaefferer_distance_cutoff
+    wdict["stat_alpha"] = stat_alpha
+    wdict["stat_window_radius"] = stat_window_radius
+    wdict["stat_convergence_ratio"] = stat_convergence_ratio
+    wdict["log_min_sigma"] = log_min_sigma
+    wdict["log_max_sigma"] = log_max_sigma
+    wdict["log_num_sigma"] = log_num_sigma
+    wdict["log_threshold"] = log_threshold
+    wdict["log_overlap"] = log_overlap
+    wdict["log_log_scale"] = log_log_scale
+    wdict["dog_min_sigma"] = dog_min_sigma
+    wdict["dog_max_sigma"] = dog_max_sigma
+    wdict["dog_sigma_ratio"] = dog_sigma_ratio
+    wdict["dog_threshold"] = dog_threshold
+    wdict["dog_overlap"] = dog_overlap
+
+    # Connect
+    link((obj, "local_max_distance"), (local_max_distance, "value"))
+    link((obj, "local_max_threshold"), (local_max_threshold, "value"))
+    link((obj, "max_alpha"), (max_alpha, "value"))
+    link((obj, "max_size"), (max_size, "value"))
+    link((obj, "minmax_separation"), (minmax_separation, "value"))
+    link((obj, "minmax_threshold"), (minmax_threshold, "value"))
+    link((obj, "zaefferer_grad_threshold"), (zaefferer_grad_threshold, "value"))
+    link((obj, "zaefferer_window_size"), (zaefferer_window_size, "value"))
+    link((obj, "zaefferer_distance_cutoff"), (zaefferer_distance_cutoff, "value"))
+    link((obj, "stat_alpha"), (stat_alpha, "value"))
+    link((obj, "stat_window_radius"), (stat_window_radius, "value"))
+    link((obj, "stat_convergence_ratio"), (stat_convergence_ratio, "value"))
+    link((obj, "log_min_sigma"), (log_min_sigma, "value"))
+    link((obj, "log_max_sigma"), (log_max_sigma, "value"))
+    link((obj, "log_num_sigma"), (log_num_sigma, "value"))
+    link((obj, "log_threshold"), (log_threshold, "value"))
+    link((obj, "log_overlap"), (log_overlap, "value"))
+    link((obj, "log_log_scale"), (log_log_scale, "value"))
+    link((obj, "dog_min_sigma"), (dog_min_sigma, "value"))
+    link((obj, "dog_max_sigma"), (dog_max_sigma, "value"))
+    link((obj, "dog_sigma_ratio"), (dog_sigma_ratio, "value"))
+    link((obj, "dog_threshold"), (dog_threshold, "value"))
+    link((obj, "dog_overlap"), (dog_overlap, "value"))
+
+    close = ipywidgets.Button(
+        description="Close",
+        tooltip="Close widget and close figure.")
+    compute = ipywidgets.Button(
+        description="Compute over navigation axes.",
+        tooltip="Find the peaks by iterating over the navigation axes.")
+
+    box_local_max = ipywidgets.VBox([
+            labelme("Max", local_max_distance),
+            labelme("Threshold", local_max_threshold),
+            ])
+    box_max = ipywidgets.VBox([#max_alpha, max_size
+            labelme("Alpha", max_alpha),
+            labelme("Size", max_size),
+            ])
+    box_minmax = ipywidgets.VBox([
+            labelme("Separation", minmax_separation),
+            labelme("Threshold", minmax_threshold),
+            ])
+    box_zaefferer = ipywidgets.VBox([
+            labelme("Gradient threshold", zaefferer_grad_threshold),
+            labelme("Window size", zaefferer_window_size),
+            labelme("Distance cutoff", zaefferer_distance_cutoff),
+            ])
+    box_stat = ipywidgets.VBox([
+            labelme("Alpha", stat_alpha),
+            labelme("Radius", stat_window_radius),
+            labelme("Convergence ratio", stat_convergence_ratio),
+            ])
+    box_log = ipywidgets.VBox([
+            labelme("Min sigma", log_min_sigma),
+            labelme("Max sigma",  log_max_sigma),
+            labelme("Num sigma", log_num_sigma),
+            labelme("Threshold", log_threshold),
+            labelme("Overlap", log_overlap),
+            labelme("Log scale", log_log_scale),
+            ])
+    box_dog = ipywidgets.VBox([
+            labelme("Min sigma", dog_min_sigma),
+            labelme("Max sigma", dog_max_sigma),
+            labelme("Sigma ratio", dog_sigma_ratio),
+            labelme("Threshold", dog_threshold),
+            labelme("Overlap", dog_overlap),
+            ])
+    
+    box_dict = {"Local Max": box_local_max,
+                "Max": box_max,
+                "Minmax": box_minmax,
+                "Zaefferer": box_zaefferer,
+                "Stat": box_stat,
+                "Laplacian of Gaussians": box_log,
+                "Difference of Gaussians": box_dog}
+
+    method = enum2dropdown(obj.traits()["method"])
+    def update_method_parameters(change):
+        # Remove all parameters vbox widgets
+        for item, value in box_dict.items():
+            value.layout.display = "none"
+        if change.new == "Local max":
+            box_local_max.layout.display = ""
+        elif change.new == "Max":
+            box_max.layout.display = ""
+        elif change.new == "Minmax":
+            box_minmax.layout.display = ""
+        elif change.new == "Zaefferer":
+            box_zaefferer.layout.display = ""
+        elif change.new == "Stat":
+            box_stat.layout.display = ""
+        elif change.new == "Laplacian of Gaussians":
+            box_log.layout.display = ""
+        elif change.new == "Difference of Gaussians":
+            box_dog.layout.display = ""
+
+    method.observe(update_method_parameters, "value")
+    link((obj, "method"), (method, "value"))
+
+    # Trigger the function that controls the visibility  as
+    # setting the default value doesn't trigger it.
+    class Dummy:
+        new = method.value
+    update_method_parameters(change=Dummy())
+
+    parameters = ipywidgets.Accordion((
+            ipywidgets.VBox([value for item, value in box_dict.items()]),
+        ))
+    parameters.set_title(0, "Method parameters")
+
+    box = ipywidgets.VBox(
+            [labelme("Method", method),
+             parameters,
+             ipywidgets.HBox([compute, close])
+    ])
+
+    def on_compute_clicked(b):
+        obj.compute_navigation()
+        box.close()
+    compute.on_click(on_compute_clicked)
+
+    def on_close_clicked(b):
+        obj.signal._plot.close()
+        box.close()
+    close.on_click(on_close_clicked)
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
