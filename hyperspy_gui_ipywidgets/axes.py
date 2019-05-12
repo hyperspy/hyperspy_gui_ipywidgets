@@ -1,4 +1,5 @@
 import ipywidgets
+import numpy as np
 
 from hyperspy_gui_ipywidgets.utils import (
     labelme, register_ipy_widget, add_display_arg)
@@ -8,6 +9,12 @@ from link_traits import link
 @register_ipy_widget(toolkey="navigation_sliders")
 @add_display_arg
 def ipy_navigation_sliders(obj, **kwargs):
+    return get_ipy_navigation_sliders(obj, **kwargs)
+
+
+def get_ipy_navigation_sliders(obj, in_accordion=False,
+                               random_position_button=False,
+                               **kwargs):
     continuous_update = ipywidgets.Checkbox(True,
                                             description="Continous update")
     wdict = {}
@@ -50,8 +57,29 @@ def ipy_navigation_sliders(obj, **kwargs):
         axis_dict["value"] = vwidget
         axis_dict["index"] = iwidget
         axis_dict["units"] = units
+
+    if random_position_button:
+        random_nav_position = ipywidgets.Button(
+            description="Set random navigation position.",
+            tooltip="Set random navigation position, useful to check the "
+                     "method paramters.",
+            layout=ipywidgets.Layout(width="auto"))
+
+        def _random_navigation_position_fired(b):
+            am = obj[0].axes_manager
+            index = np.random.randint(0, am._max_index)
+            am.indices = np.unravel_index(index, 
+                tuple(am._navigation_shape_in_array))[::-1]
+        random_nav_position.on_click(_random_navigation_position_fired)
+
+        wdict["random_nav_position_button"] = random_nav_position
+        widgets.append(random_nav_position)
+
     widgets.append(continuous_update)
     box = ipywidgets.VBox(widgets)
+    if in_accordion:
+        box = ipywidgets.Accordion((box,))
+        box.set_title(0, "Navigation sliders")
     return {"widget": box, "wdict": wdict}
 
 
