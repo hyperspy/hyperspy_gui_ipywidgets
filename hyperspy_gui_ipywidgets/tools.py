@@ -5,6 +5,7 @@ from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg, register_ipy_widget)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
+from hyperspy_gui_ipywidgets.axes import get_ipy_navigation_sliders
 from hyperspy.signal_tools import SPIKES_REMOVAL_INSTRUCTIONS
 
 
@@ -756,20 +757,27 @@ def find_peaks2D_ipy(obj, **kwargs):
         new = method.value
     update_method_parameters(change=Dummy())
 
-    parameters = ipywidgets.Accordion((
-            ipywidgets.VBox([value for item, value in box_dict.items()]),
-        ))
-    parameters.set_title(0, "Method parameters")
+    widgets_list = []
 
-    box = ipywidgets.VBox(
-            [labelme("Method", method),
-             parameters,
-             ipywidgets.HBox([compute, close])
-    ])
+    if obj.show_navigation_sliders:
+        nav_widget = get_ipy_navigation_sliders(
+                obj.signal.axes_manager.navigation_axes,
+                in_accordion=True,
+                random_position_button=True)
+        widgets_list.append(nav_widget['widget'])
+        wdict.update(nav_widget['wdict'])
+
+    l = [labelme("Method", method)]
+    l.extend([value for item, value in box_dict.items()])
+    method_parameters = ipywidgets.Accordion((ipywidgets.VBox(l), ))
+    method_parameters.set_title(0, "Method parameters")
+
+    widgets_list.extend([method_parameters,
+                         ipywidgets.HBox([compute, close])])
+    box = ipywidgets.VBox(widgets_list)
 
     def on_compute_clicked(b):
         obj.compute_navigation()
-        box.close()
     compute.on_click(on_compute_clicked)
 
     def on_close_clicked(b):
