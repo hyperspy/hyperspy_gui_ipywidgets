@@ -77,4 +77,7 @@ setup(
     extras_require={
         'test': ['pytest'], },
     entry_points={'hyperspy.extensions': 'hyperspy-gui-ipywidgets = hyperspy_gui_ipywidgets'},
+    package_data={  # Optional
+        'hyperspy_gui_ipywidgets': ['hyperspy_extension.yaml'],
+},
 )
