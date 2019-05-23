@@ -75,6 +75,6 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'test': ['pytest'],
-    },
+        'test': ['pytest'], },
+    entry_points={'hyperspy.extensions': 'hyperspy-gui-ipywidgets = hyperspy_gui_ipywidgets'},
 )

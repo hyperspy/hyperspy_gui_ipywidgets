@@ -5,7 +5,7 @@ import ipywidgets
 
 from link_traits import link
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, register_ipy_widget, add_display_arg, float2floattext, get_label, str2text)
+    labelme, add_display_arg, float2floattext, get_label, str2text)
 
 
 def bool2checkbox(trait, label):
@@ -51,7 +51,6 @@ TRAITS2IPYWIDGETS = {
 }
 
 
-@register_ipy_widget(toolkey="Preferences")
 @add_display_arg
 def show_preferences_widget(obj, **kwargs):
     ipytabs = {}
