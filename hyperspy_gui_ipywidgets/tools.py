@@ -346,6 +346,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
     left = ipywidgets.FloatText(disabled=True)
     right = ipywidgets.FloatText(disabled=True)
+    bins = ipywidgets.IntText()
+    gamma = ipywidgets.FloatSlider(1.0, min=0.0, max=2.0)
+    saturated_pixels = ipywidgets.FloatSlider(0.2, min=0.0, max=100.0)
+    auto = ipywidgets.Checkbox(True)
     help = ipywidgets.HTML(
         "Click on the histogram figure and drag to the right to select a"
         "range. Press `Apply` to set the new contrast limits, `Reset` to reset "
@@ -355,15 +359,19 @@ def image_constast_editor_ipy(obj, **kwargs):
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
-        tooltip="Close widget and remove span selector from the signal figure.")
+        tooltip="Close widget.")
     apply = ipywidgets.Button(
         description="Apply",
-        tooltip="Perform the operation using the selected range.")
+        tooltip="Use the range selected to re-calculate the histogram.")
     reset = ipywidgets.Button(
         description="Reset",
-        tooltip="Reset the contrast to the previous value.")
+        tooltip="Reset the settings to their initial values.")
     wdict["left"] = left
     wdict["right"] = right
+    wdict["bins"] = bins
+    wdict["gamma"] = gamma
+    wdict["saturated_pixels"] = saturated_pixels
+    wdict["auto"] = auto
     wdict["close_button"] = close
     wdict["apply_button"] = apply
     wdict["reset_button"] = reset
@@ -371,6 +379,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "bins"), (bins, "value"))
+    link((obj, "gamma"), (gamma, "value"))
+    link((obj, "saturated_pixels"), (saturated_pixels, "value"))
+    link((obj, "auto"), (auto, "value"))
 
     def on_apply_clicked(b):
         obj.apply()
@@ -383,6 +395,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     box = ipywidgets.VBox([
         labelme("vmin", left),
         labelme("vmax", right),
+        labelme("bins", bins),
+        labelme("gamma", gamma),
+        labelme("saturated_pixels", saturated_pixels),
+        labelme("auto", auto),
         help,
         ipywidgets.HBox((apply, reset, close))
     ])
