@@ -348,10 +348,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     left = ipywidgets.FloatText(disabled=True, description="Min")
     right = ipywidgets.FloatText(disabled=True, description="Max")
     bins = ipywidgets.IntText(description="Bins")
-    norm = ipywidgets.Dropdown(options=("Auto", "Linear", "Log", "Power"),
+    norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
                                description="Norm",
                                value=obj.norm)
-    saturated_pixels = ipywidgets.FloatSlider(0.0, min=0.0, max=10.0,
+    saturated_pixels = ipywidgets.FloatSlider(0.05, min=0.0, max=5.0,
                                               description="Saturated pixels")
     gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
     linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
@@ -399,13 +399,13 @@ def image_constast_editor_ipy(obj, **kwargs):
     def enable_parameters(change):
         # Necessary for the initialisation
         v = change if isinstance(change, str) else change.new
-        if v == "Log" and obj.negative_values_displayed:
+        if v == "Symlog":
             linthresh.layout.display = ""
             linscale.layout.display = ""
         else:
             linthresh.layout.display = "none"
             linscale.layout.display = "none"
-        if v == "Power" or v == "Auto":
+        if v == "Power":
             gamma.layout.display = ""
         else:
             gamma.layout.display = "none"
