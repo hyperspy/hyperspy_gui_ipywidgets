@@ -1,7 +1,6 @@
 language: python
 python:
   - "nightly"
-  - 3.5
   - 3.6
 env:
   - hspy_version="release"
