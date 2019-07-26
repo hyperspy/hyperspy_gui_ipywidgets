@@ -19,13 +19,19 @@ except (ImportError, OSError):
     with open(path.join(here, 'README.md'), encoding='utf-8') as f:
         long_description = f.read()
 
+
+version = {}
+with open(path.join(here, "hyperspy_gui_ipywidgets", "version.py")) as fp:
+    exec(fp.read(), version)
+
+
 setup(
     name='hyperspy_gui_ipywidgets',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.1.1',
+    version=version['__version__'],
 
     description=('ipywidgets GUI elements for HyperSpy.'),
     long_description=long_description,
@@ -69,6 +75,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['hyperspy>=1.5.dev', 'ipywidgets>=6.0', 'link_traits'],
+
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

@@ -2,7 +2,7 @@ import numpy as np
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy.signal_tools import Signal1DCalibration
+from hyperspy.signal_tools import Signal1DCalibration, ImageContrastEditor
 
 
 class TestTools:
@@ -161,17 +161,68 @@ class TestTools:
         assert s.axes_manager.indices == (0, 0)
 
     def test_constrast_editor(self):
+        # To get this test to work, matplotlib backend needs to set to 'Agg'
+        np.random.seed(1)
         im = hs.signals.Signal2D(np.random.random((32, 32)))
         im.plot()
-        wd = im._plot.signal_plot.gui_adjust_contrast(
-            **KWARGS)["ipywidgets"]["wdict"]
+        ceditor = ImageContrastEditor(im._plot.signal_plot)
+        ceditor.ax.figure.canvas.draw_idle()
+        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
+        wd = ceditor.gui(**KWARGS)["ipywidgets"]["wdict"]
+        assert ceditor.saturated_pixels == 0.05
+        assert wd["linthresh"].layout.display == "none"  # not visible
+        assert wd["linscale"].layout.display == "none"  # not visible
+        assert wd["gamma"].layout.display == "none"  # not visible
+        wd["bins"].value = 50
+        assert ceditor.bins == 50
+        wd["norm"].value = 'Log'
+        assert ceditor.norm == 'Log'
+        assert wd["linthresh"].layout.display == "none"  # not visible
+        assert wd["linscale"].layout.display == "none"  # not visible
+        wd["norm"].value = 'Symlog'
+        assert ceditor.norm == 'Symlog'
+        assert wd["linthresh"].layout.display == ""  # visible
+        assert wd["linscale"].layout.display == ""  # visible
+        assert wd["linthresh"].value == 0.01 # default value
+        assert wd["linscale"].value == 0.1 # default value
+
+        wd["linthresh"].value = 0.1
+        assert ceditor.linthresh == 0.1
+        wd["linscale"].value = 0.2
+        assert ceditor.linscale == 0.2
+
+
+        wd["norm"].value = 'Linear'
+        wd["saturated_pixels"].value = 0.5
+        assert ceditor.saturated_pixels == 0.5
+        np.testing.assert_allclose(im._plot.signal_plot.vmin, 29.5263052E-4)
+
+        wd["norm"].value = 'Power'
+        assert ceditor.norm == 'Power'
+        assert wd["gamma"].layout.display == ""  # visible
+        assert wd["gamma"].value == 1.0 # default value
+        wd["gamma"].value = 0.1
+        assert ceditor.gamma == 0.1
+
+        assert wd["auto"].value is True # default value
+        wd["auto"].value = False
+        assert ceditor.auto is False
+
         vmax = im._plot.signal_plot.vmax
         vmin = im._plot.signal_plot.vmin
         wd["left"].value = 0.2
+        assert ceditor.ss_left_value == 0.2
         wd["right"].value = 0.5
+        assert ceditor.ss_right_value == 0.5
+        # Setting the span selector programmatically from the widgets will
+        # need to be implemented properly
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
-        assert im._plot.signal_plot.vmin == 0.2
-        assert im._plot.signal_plot.vmax == 0.5
+        # assert im._plot.signal_plot.vmin == 0.2
+        # assert im._plot.signal_plot.vmax == 0.5
+
+        # Reset to default values
         wd["reset_button"]._click_handlers(wd["reset_button"])    # Trigger it
-        assert im._plot.signal_plot.vmin == vmin
-        assert im._plot.signal_plot.vmax == vmax
+        assert ceditor.saturated_pixels == 0.05
+        assert wd["saturated_pixels"].value == 0.05
+        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
+        np.testing.assert_allclose(im._plot.signal_plot.vmax, 0.9971772199)

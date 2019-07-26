@@ -5,7 +5,8 @@ from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
-from hyperspy.signal_tools import SPIKES_REMOVAL_INSTRUCTIONS
+from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
+                                   IMAGE_CONTRAST_EDITOR_HELP)
 
 
 @add_display_arg
@@ -337,26 +338,42 @@ def smooth_butterworth(obj, **kwargs):
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
-    left = ipywidgets.FloatText(disabled=True)
-    right = ipywidgets.FloatText(disabled=True)
-    help = ipywidgets.HTML(
-        "Click on the histogram figure and drag to the right to select a"
-        "range. Press `Apply` to set the new contrast limits, `Reset` to reset "
-        "them or `Close` to cancel.",)
+    left = ipywidgets.FloatText(disabled=True, description="Min")
+    right = ipywidgets.FloatText(disabled=True, description="Max")
+    bins = ipywidgets.IntText(description="Bins")
+    norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
+                               description="Norm",
+                               value=obj.norm)
+    saturated_pixels = ipywidgets.FloatSlider(0.05, min=0.0, max=5.0,
+                                              description="Saturated pixels")
+    gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
+    linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
+                                       description="Linear threshold")
+    linscale = ipywidgets.FloatSlider(0.1, min=0.001, max=10.0, step=0.001,
+                                      description="Linear scale")
+    auto = ipywidgets.Checkbox(True, description="Auto")
+    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP)
     wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
-        tooltip="Close widget and remove span selector from the signal figure.")
+        tooltip="Close widget.")
     apply = ipywidgets.Button(
         description="Apply",
-        tooltip="Perform the operation using the selected range.")
+        tooltip="Use the selected range to re-calculate the histogram.")
     reset = ipywidgets.Button(
         description="Reset",
-        tooltip="Reset the contrast to the previous value.")
+        tooltip="Reset the settings to their initial values.")
     wdict["left"] = left
     wdict["right"] = right
+    wdict["bins"] = bins
+    wdict["norm"] = norm
+    wdict["saturated_pixels"] = saturated_pixels
+    wdict["gamma"] = gamma
+    wdict["linthresh"] = linthresh
+    wdict["linscale"] = linscale
+    wdict["auto"] = auto
     wdict["close_button"] = close
     wdict["apply_button"] = apply
     wdict["reset_button"] = reset
@@ -364,6 +381,29 @@ def image_constast_editor_ipy(obj, **kwargs):
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "bins"), (bins, "value"))
+    link((obj, "norm"), (norm, "value"))
+    link((obj, "saturated_pixels"), (saturated_pixels, "value"))
+    link((obj, "gamma"), (gamma, "value"))
+    link((obj, "linthresh"), (linthresh, "value"))
+    link((obj, "linscale"), (linscale, "value"))
+    link((obj, "auto"), (auto, "value"))
+
+    def enable_parameters(change):
+        # Necessary for the initialisation
+        v = change if isinstance(change, str) else change.new
+        if v == "Symlog":
+            linthresh.layout.display = ""
+            linscale.layout.display = ""
+        else:
+            linthresh.layout.display = "none"
+            linscale.layout.display = "none"
+        if v == "Power":
+            gamma.layout.display = ""
+        else:
+            gamma.layout.display = "none"
+    enable_parameters(obj.norm)
+    norm.observe(enable_parameters, "value")
 
     def on_apply_clicked(b):
         obj.apply()
@@ -373,12 +413,18 @@ def image_constast_editor_ipy(obj, **kwargs):
         obj.reset()
     reset.on_click(on_reset_clicked)
 
-    box = ipywidgets.VBox([
-        labelme("vmin", left),
-        labelme("vmax", right),
-        help,
-        ipywidgets.HBox((apply, reset, close))
-    ])
+    box = ipywidgets.VBox([left,
+                           right,
+                           bins,
+                           norm,
+                           saturated_pixels,
+                           gamma,
+                           linthresh,
+                           linscale,
+                           auto,
+                           help,
+                           ipywidgets.HBox((apply, reset, close)),
+                           ])
 
     def on_close_clicked(b):
         obj.close()
