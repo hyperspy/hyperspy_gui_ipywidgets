@@ -74,13 +74,17 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['hyperspy>=1.4', 'ipywidgets>=6.0', 'link_traits'],
+    install_requires=['hyperspy>=1.5.dev', 'ipywidgets>=6.0', 'link_traits'],
+
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'test': ['pytest'],
-    },
+        'test': ['pytest'], },
+    entry_points={'hyperspy.extensions': 'hyperspy-gui-ipywidgets = hyperspy_gui_ipywidgets'},
+    package_data={  # Optional
+        'hyperspy_gui_ipywidgets': ['hyperspy_extension.yaml'],
+},
 )

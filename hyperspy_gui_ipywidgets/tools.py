@@ -2,14 +2,13 @@ import ipywidgets
 import traits.api as t
 
 from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
-        add_display_arg, register_ipy_widget)
+        add_display_arg)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
 from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
                                    IMAGE_CONTRAST_EDITOR_HELP)
 
 
-@register_ipy_widget(toolkey="interactive_range_selector")
 @add_display_arg
 def interactive_range_ipy(obj, **kwargs):
     # Define widgets
@@ -65,7 +64,6 @@ def interactive_range_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.calibrate")
 @add_display_arg
 def calibrate_ipy(obj, **kwargs):
     # Define widgets
@@ -150,7 +148,6 @@ def calibrate_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_savitzky_golay")
 @add_display_arg
 def smooth_savitzky_golay_ipy(obj, **kwargs):
     wdict = {}
@@ -208,7 +205,6 @@ def smooth_savitzky_golay_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_lowess")
 @add_display_arg
 def smooth_lowess_ipy(obj, **kwargs):
     wdict = {}
@@ -252,7 +248,6 @@ def smooth_lowess_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_total_variation")
 @add_display_arg
 def smooth_tv_ipy(obj, **kwargs):
     wdict = {}
@@ -297,7 +292,6 @@ def smooth_tv_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_butterworth")
 @add_display_arg
 def smooth_butterworth(obj, **kwargs):
     wdict = {}
@@ -341,7 +335,6 @@ def smooth_butterworth(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.contrast_editor")
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
@@ -443,7 +436,6 @@ def image_constast_editor_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.remove_background")
 @add_display_arg
 def remove_background_ipy(obj, **kwargs):
     wdict = {}
@@ -525,7 +517,6 @@ def remove_background_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.spikes_removal_tool")
 @add_display_arg
 def spikes_removal_ipy(obj, **kwargs):
     wdict = {}

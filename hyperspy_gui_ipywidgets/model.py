@@ -6,7 +6,7 @@ import numpy as np
 
 from link_traits import link, dlink
 from hyperspy_gui_ipywidgets.utils import (
-    add_display_arg, register_ipy_widget, labelme)
+    add_display_arg, labelme)
 
 
 def _interactive_slider_bounds(obj, index=None):
@@ -99,7 +99,6 @@ def _get_value_widget(obj, index=None):
     }
 
 
-@register_ipy_widget(toolkey="Parameter")
 @add_display_arg
 def get_parameter_widget(obj, **kwargs):
     """Creates interactive notebook widgets for the parameter, if
@@ -145,7 +144,6 @@ def get_parameter_widget(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Component")
 @add_display_arg
 def get_component_widget(obj, **kwargs):
     """Creates interactive notebook widgets for all component parameters,
@@ -168,7 +166,6 @@ def get_component_widget(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Model")
 @add_display_arg
 def get_model_widget(obj, **kwargs):
     """Creates interactive notebook widgets for all components and
@@ -192,7 +189,6 @@ def get_model_widget(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="EELSCLEdge_Component")
 @add_display_arg
 def get_eelscl_widget(obj, **kwargs):
     """Create ipywidgets for the EELSCLEDge component.
@@ -226,7 +222,6 @@ def get_eelscl_widget(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="ScalableFixedPattern_Component")
 @add_display_arg
 def get_scalable_fixed_patter_widget(obj, **kwargs):
     cdict = get_component_widget(obj, display=False)
@@ -244,7 +239,6 @@ def get_scalable_fixed_patter_widget(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Model1D.fit_component")
 @add_display_arg
 def fit_component_ipy(obj, **kwargs):
     wdict = {}
