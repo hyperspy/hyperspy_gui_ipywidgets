@@ -639,7 +639,7 @@ def find_peaks2D_ipy(obj, **kwargs):
     max_alpha = ipywidgets.FloatSlider(min=0, max=6, value=3)
     max_size = ipywidgets.IntSlider(min=1, max=20, value=10)
     # For "minmax" method
-    minmax_separation = ipywidgets.FloatSlider(min=0, max=6, value=3)
+    minmax_distance = ipywidgets.FloatSlider(min=0, max=6, value=3)
     minmax_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
     # For "Zaefferer" method
     zaefferer_grad_threshold = ipywidgets.FloatSlider(min=0, max=0.2,
@@ -663,12 +663,15 @@ def find_peaks2D_ipy(obj, **kwargs):
     dog_sigma_ratio = ipywidgets.FloatSlider(min=0, max=3.2, value=1.6)
     dog_threshold = ipywidgets.FloatSlider(min=0, max=0.4, value=0.2)
     dog_overlap = ipywidgets.FloatSlider(min=0, max=1, value=0.5)
+    # For "Cross correlation" method
+    xc_distance = ipywidgets.FloatSlider(min=0, max=10., value=5.)
+    xc_threshold = ipywidgets.FloatSlider(min=0, max=2., value=0.5)
 
     wdict["local_max_distance"] = local_max_distance
     wdict["local_max_threshold"] = local_max_threshold
     wdict["max_alpha"] = max_alpha
     wdict["max_size"] = max_size
-    wdict["minmax_separation"] = minmax_separation
+    wdict["minmax_distance"] = minmax_distance
     wdict["minmax_threshold"] = minmax_threshold
     wdict["zaefferer_grad_threshold"] = zaefferer_grad_threshold
     wdict["zaefferer_window_size"] = zaefferer_window_size
@@ -687,13 +690,15 @@ def find_peaks2D_ipy(obj, **kwargs):
     wdict["dog_sigma_ratio"] = dog_sigma_ratio
     wdict["dog_threshold"] = dog_threshold
     wdict["dog_overlap"] = dog_overlap
+    wdict["xc_distance"] = xc_distance
+    wdict["xc_threshold"] = xc_threshold
 
     # Connect
     link((obj, "local_max_distance"), (local_max_distance, "value"))
     link((obj, "local_max_threshold"), (local_max_threshold, "value"))
     link((obj, "max_alpha"), (max_alpha, "value"))
     link((obj, "max_size"), (max_size, "value"))
-    link((obj, "minmax_separation"), (minmax_separation, "value"))
+    link((obj, "minmax_distance"), (minmax_distance, "value"))
     link((obj, "minmax_threshold"), (minmax_threshold, "value"))
     link((obj, "zaefferer_grad_threshold"), (zaefferer_grad_threshold, "value"))
     link((obj, "zaefferer_window_size"), (zaefferer_window_size, "value"))
@@ -712,6 +717,8 @@ def find_peaks2D_ipy(obj, **kwargs):
     link((obj, "dog_sigma_ratio"), (dog_sigma_ratio, "value"))
     link((obj, "dog_threshold"), (dog_threshold, "value"))
     link((obj, "dog_overlap"), (dog_overlap, "value"))
+    link((obj, "xc_distance"), (xc_distance, "value"))
+    link((obj, "xc_threshold"), (xc_threshold, "value"))
 
     close = ipywidgets.Button(
         description="Close",
@@ -721,7 +728,7 @@ def find_peaks2D_ipy(obj, **kwargs):
         tooltip="Find the peaks by iterating over the navigation axes.")
 
     box_local_max = ipywidgets.VBox([
-            labelme("Max", local_max_distance),
+            labelme("Distance", local_max_distance),
             labelme("Threshold", local_max_threshold),
             ])
     box_max = ipywidgets.VBox([#max_alpha, max_size
@@ -729,7 +736,7 @@ def find_peaks2D_ipy(obj, **kwargs):
             labelme("Size", max_size),
             ])
     box_minmax = ipywidgets.VBox([
-            labelme("Separation", minmax_separation),
+            labelme("Distance", minmax_distance),
             labelme("Threshold", minmax_threshold),
             ])
     box_zaefferer = ipywidgets.VBox([
@@ -757,14 +764,19 @@ def find_peaks2D_ipy(obj, **kwargs):
             labelme("Threshold", dog_threshold),
             labelme("Overlap", dog_overlap),
             ])
-    
+    box_xc = ipywidgets.VBox([
+            labelme("Distance", xc_distance),
+            labelme("Threshold", xc_threshold),
+            ])
+
     box_dict = {"Local Max": box_local_max,
                 "Max": box_max,
                 "Minmax": box_minmax,
                 "Zaefferer": box_zaefferer,
                 "Stat": box_stat,
                 "Laplacian of Gaussians": box_log,
-                "Difference of Gaussians": box_dog}
+                "Difference of Gaussians": box_dog,
+                "Cross correlation": box_xc}
 
     method = enum2dropdown(obj.traits()["method"])
     def update_method_parameters(change):
@@ -785,6 +797,8 @@ def find_peaks2D_ipy(obj, **kwargs):
             box_log.layout.display = ""
         elif change.new == "Difference of Gaussians":
             box_dog.layout.display = ""
+        elif change.new == "Cross correlation":
+            box_xc.layout.display = ""
 
     method.observe(update_method_parameters, "value")
     link((obj, "method"), (method, "value"))
