@@ -2,7 +2,7 @@
 import ipywidgets
 
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, register_ipy_widget, add_display_arg, float2floattext, get_label)
+    labelme, add_display_arg, float2floattext, get_label)
 
 from link_traits import link
 
@@ -32,19 +32,16 @@ def _set_microscope_parameters(obj, **kwargs):
         "wdict": wdict}
 
 
-@register_ipy_widget(toolkey="microscope_parameters_EELS")
 @add_display_arg
 def eels_microscope_parameter_ipy(obj, **kwargs):
     return(_set_microscope_parameters(obj=obj, **kwargs))
 
 
-@register_ipy_widget(toolkey="microscope_parameters_EDS_SEM")
 @add_display_arg
 def eds_sem_microscope_parameter_ipy(obj, **kwargs):
     return(_set_microscope_parameters(obj=obj, **kwargs))
 
 
-@register_ipy_widget(toolkey="microscope_parameters_EDS_TEM")
 @add_display_arg
 def eds_tem_microscope_parameter_ipy(obj, **kwargs):
     return(_set_microscope_parameters(obj=obj, **kwargs))

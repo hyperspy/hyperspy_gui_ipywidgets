@@ -2,12 +2,10 @@ import ipywidgets
 import traitlets
 
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, labelme_sandwich, enum2dropdown, add_display_arg,
-    register_ipy_widget)
+    labelme, labelme_sandwich, enum2dropdown, add_display_arg, )
 from link_traits import link
 
 
-@register_ipy_widget(toolkey="SpanROI")
 @add_display_arg
 def span_roi_ipy(obj, **kwargs):
     wdict = {}
@@ -24,7 +22,6 @@ def span_roi_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Point1DROI")
 @add_display_arg
 def point1d_roi_ipy(obj, **kwargs):
     wdict = {}
@@ -37,7 +34,6 @@ def point1d_roi_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Point2DROI")
 @add_display_arg
 def point_2d_ipy(obj, **kwargs):
     wdict = {}
@@ -54,7 +50,6 @@ def point_2d_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="RectangularROI")
 @add_display_arg
 def rectangular_roi_ipy(obj, **kwargs):
     wdict = {}
@@ -79,7 +74,6 @@ def rectangular_roi_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="CircleROI")
 @add_display_arg
 def circle_roi_ipy(obj, **kwargs):
     wdict = {}
@@ -104,7 +98,6 @@ def circle_roi_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Line2DROI")
 @add_display_arg
 def line2d_roi_ipy(obj, **kwargs):
     wdict = {}
