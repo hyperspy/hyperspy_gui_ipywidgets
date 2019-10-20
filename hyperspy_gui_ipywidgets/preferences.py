@@ -71,8 +71,7 @@ def show_preferences_widget(obj, **kwargs):
         ipytabs[tab] = ipywidgets.VBox(ipytab)
     titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
-        children=[ipytabs[title.replace(" ", "")] for title in titles],
-        titles=titles)
+        children=[ipytabs[title.replace(" ", "")] for title in titles])
     for i, title in enumerate(titles):
         ipytabs_.set_title(i, title)
     save_button = ipywidgets.Button(
