@@ -47,10 +47,10 @@ def get_label(trait, label):
 
 
 def enum2dropdown(trait):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Dropdown(
         options=trait.trait_type.values,
-        tooltip=tooltip,)
+        description_tooltip=description_tooltip,)
     return widget
 
 
