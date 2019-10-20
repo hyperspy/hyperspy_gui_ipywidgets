@@ -134,8 +134,7 @@ def get_parameter_widget(obj, **kwargs):
                 vwidget.value = value
         update.on_click(on_update_clicked)
         wdict["update_button"] = update
-        container = Accordion([VBox([update] + par_widgets)],
-                              descrition=obj.name)
+        container = Accordion([VBox([update] + par_widgets)])
         container.set_title(0, obj.name)
 
     return {
