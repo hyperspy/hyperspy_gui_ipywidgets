@@ -55,9 +55,9 @@ def enum2dropdown(trait):
 
 
 def float2floattext(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatText(
-        tooltip=tooltip,
+        description=description,
     )
     return labelme(widget=widget, label=label)
 
