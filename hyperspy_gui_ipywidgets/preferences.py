@@ -69,9 +69,10 @@ def show_preferences_widget(obj, **kwargs):
             link((getattr(obj, tab), trait_name),
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
+    # This defines the order of the tab in the widget
     titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
-        children=[ipytabs[title.replace(" ", "")] for title in titles])
+        children=[ipytabs[title] for title in titles])
     for i, title in enumerate(titles):
         ipytabs_.set_title(i, title)
     save_button = ipywidgets.Button(
