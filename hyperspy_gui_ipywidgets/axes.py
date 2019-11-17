@@ -1,11 +1,10 @@
 import ipywidgets
 
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, register_ipy_widget, add_display_arg)
+    labelme, add_display_arg)
 from link_traits import link
 
 
-@register_ipy_widget(toolkey="navigation_sliders")
 @add_display_arg
 def ipy_navigation_sliders(obj, **kwargs):
     continuous_update = ipywidgets.Checkbox(True,
@@ -55,7 +54,6 @@ def ipy_navigation_sliders(obj, **kwargs):
     return {"widget": box, "wdict": wdict}
 
 
-@register_ipy_widget(toolkey="DataAxis")
 @add_display_arg
 def _get_axis_widgets(obj):
     widgets = []
@@ -112,7 +110,6 @@ def _get_axis_widgets(obj):
     }
 
 
-@register_ipy_widget(toolkey="AxesManager")
 @add_display_arg
 def ipy_axes_gui(obj, **kwargs):
     wdict = {}

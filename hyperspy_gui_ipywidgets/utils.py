@@ -4,10 +4,8 @@ import ipywidgets
 from traits.api import Undefined
 import IPython.display
 
-from hyperspy.ui_registry import register_widget
 
 
-register_ipy_widget = functools.partial(register_widget, toolkit="ipywidgets")
 
 FORM_ITEM_LAYOUT = ipywidgets.Layout(
     display='flex',
@@ -60,6 +58,14 @@ def float2floattext(trait, label):
     tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatText(
         tooltip=tooltip,
+    )
+    return labelme(widget=widget, label=label)
+
+
+def str2text(trait, label):
+    description = trait.desc if trait.desc else ""
+    widget = ipywidgets.Text(
+        description=description,
     )
     return labelme(widget=widget, label=label)
 

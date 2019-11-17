@@ -5,7 +5,7 @@ import ipywidgets
 
 from link_traits import link
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, register_ipy_widget, add_display_arg, float2floattext, get_label)
+    labelme, add_display_arg, float2floattext, get_label, str2text)
 
 
 def bool2checkbox(trait, label):
@@ -39,7 +39,7 @@ def range2floatrangeslider(trait, label):
         tooltip=tooltip,)
     return labelme(widget=widget, label=label)
 
-
+# Trait types must be converted to the appropriate ipywidget
 TRAITS2IPYWIDGETS = {
     traits.trait_types.CBool: bool2checkbox,
     traits.trait_types.Bool: bool2checkbox,
@@ -47,10 +47,10 @@ TRAITS2IPYWIDGETS = {
     traits.trait_types.Directory: directory2unicode,
     traits.trait_types.Range: range2floatrangeslider,
     traits.trait_types.Enum: enum2dropdown,
+    traits.trait_types.Str: str2text,
 }
 
 
-@register_ipy_widget(toolkey="Preferences")
 @add_display_arg
 def show_preferences_widget(obj, **kwargs):
     ipytabs = {}
@@ -69,7 +69,7 @@ def show_preferences_widget(obj, **kwargs):
             link((getattr(obj, tab), trait_name),
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
-    titles = ["General", "GUIs", "EELS", "EDS"]
+    titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
         children=[ipytabs[title.replace(" ", "")] for title in titles],
         titles=titles)
