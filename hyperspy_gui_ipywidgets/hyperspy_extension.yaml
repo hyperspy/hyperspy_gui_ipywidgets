@@ -85,3 +85,6 @@ GUI:
       hyperspy.microscope_parameters_EDS_SEM:
         module: hyperspy_gui_ipywidgets.microscope_parameters
         function: eds_sem_microscope_parameter_ipy
+      hyperspy.EELSModel.estimate_and_set_coreloss_edge_onset:
+        module: hyperspy_gui_ipywidgets.model
+        function: estimate_and_set_coreloss_edge_onset_ipy

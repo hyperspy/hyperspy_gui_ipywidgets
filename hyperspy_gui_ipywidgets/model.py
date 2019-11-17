@@ -281,7 +281,6 @@ def fit_component_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="EELSModel.estimate_and_set_coreloss_edge_onset")
 @add_display_arg
 def estimate_and_set_coreloss_edge_onset_ipy(obj, **kwargs):
     wdict = {}
