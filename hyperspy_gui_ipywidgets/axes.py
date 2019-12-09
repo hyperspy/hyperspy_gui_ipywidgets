@@ -94,15 +94,23 @@ def _get_axis_widgets(obj):
     link((obj, "units"), (units, "value"))
     wd["units"] = units
 
-    scale = ipywidgets.FloatText()
-    widgets.append(labelme("Scale", scale))
-    link((obj, "scale"), (scale, "value"))
-    wd["scale"] = scale
+    if "scale" in obj.__dict__.keys():
+        scale = ipywidgets.FloatText()
+        widgets.append(labelme("Scale", scale))
+        link((obj, "scale"), (scale, "value"))
+        wd["scale"] = scale
 
-    offset = ipywidgets.FloatText()
-    widgets.append(labelme("Offset", offset))
-    link((obj, "offset"), (offset, "value"))
-    wd["offset"] = offset
+    if "offset" in obj.__dict__.keys():
+        offset = ipywidgets.FloatText()
+        widgets.append(labelme("Offset", offset))
+        link((obj, "offset"), (offset, "value"))
+        wd["offset"] = offset
+        
+    if "_expression" in obj.__dict__.keys():
+        expression = ipywidgets.Text(disabled=True)
+        widgets.append(labelme("Expression", expression))
+        link((obj, "_expression"), (expression, "value"))
+        wd["expression"] = expression
 
     return {
         "widget": ipywidgets.VBox(widgets),
