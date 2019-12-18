@@ -338,14 +338,16 @@ def smooth_butterworth(obj, **kwargs):
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
-    left = ipywidgets.FloatText(disabled=True, description="Min")
-    right = ipywidgets.FloatText(disabled=True, description="Max")
+    left = ipywidgets.FloatText(disabled=True, description="Vmin")
+    right = ipywidgets.FloatText(disabled=True, description="Vmax")
     bins = ipywidgets.IntText(description="Bins")
     norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
                                description="Norm",
                                value=obj.norm)
-    saturated_pixels = ipywidgets.FloatSlider(0.05, min=0.0, max=5.0,
-                                              description="Saturated pixels")
+    vmin_percentile = ipywidgets.FloatSlider(0.5, min=0.0, max=100.0,
+                                              description="Vmin percentile")
+    vmax_percentile = ipywidgets.FloatSlider(0.5, min=0.0, max=100.0,
+                                              description="Vmax percentile")
     gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
     linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
                                        description="Linear threshold")
@@ -369,7 +371,8 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["right"] = right
     wdict["bins"] = bins
     wdict["norm"] = norm
-    wdict["saturated_pixels"] = saturated_pixels
+    wdict["vmin_percentile"] = vmin_percentile
+    wdict["vmax_percentile"] = vmax_percentile
     wdict["gamma"] = gamma
     wdict["linthresh"] = linthresh
     wdict["linscale"] = linscale
@@ -383,13 +386,14 @@ def image_constast_editor_ipy(obj, **kwargs):
     link((obj, "ss_right_value"), (right, "value"))
     link((obj, "bins"), (bins, "value"))
     link((obj, "norm"), (norm, "value"))
-    link((obj, "saturated_pixels"), (saturated_pixels, "value"))
+    link((obj, "vmin_percentile"), (vmin_percentile, "value"))
+    link((obj, "vmax_percentile"), (vmax_percentile, "value"))
     link((obj, "gamma"), (gamma, "value"))
     link((obj, "linthresh"), (linthresh, "value"))
     link((obj, "linscale"), (linscale, "value"))
     link((obj, "auto"), (auto, "value"))
 
-    def enable_parameters(change):
+    def display_parameters(change):
         # Necessary for the initialisation
         v = change if isinstance(change, str) else change.new
         if v == "Symlog":
@@ -402,8 +406,17 @@ def image_constast_editor_ipy(obj, **kwargs):
             gamma.layout.display = ""
         else:
             gamma.layout.display = "none"
-    enable_parameters(obj.norm)
-    norm.observe(enable_parameters, "value")
+    display_parameters(obj.norm)
+    norm.observe(display_parameters, "value")
+
+    def disable_parameters(change):
+        # Necessary for the initialisation
+        v = change if isinstance(change, bool) else change.new
+        vmin_percentile.disabled = not v
+        vmax_percentile.disabled = not v
+
+    disable_parameters(obj.auto)
+    auto.observe(disable_parameters, "value")
 
     def on_apply_clicked(b):
         obj.apply()
@@ -415,13 +428,14 @@ def image_constast_editor_ipy(obj, **kwargs):
 
     box = ipywidgets.VBox([left,
                            right,
+                           auto,
+                           vmin_percentile,
+                           vmax_percentile,
                            bins,
                            norm,
-                           saturated_pixels,
                            gamma,
                            linthresh,
                            linscale,
-                           auto,
                            help,
                            ipywidgets.HBox((apply, reset, close)),
                            ])
