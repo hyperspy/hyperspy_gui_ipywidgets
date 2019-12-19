@@ -94,13 +94,13 @@ def _get_axis_widgets(obj):
     link((obj, "units"), (units, "value"))
     wd["units"] = units
 
-    if "scale" in obj.__dict__.keys():
+    if hasattr(obj, "scale"):
         scale = ipywidgets.FloatText()
         widgets.append(labelme("Scale", scale))
         link((obj, "scale"), (scale, "value"))
         wd["scale"] = scale
 
-    if "offset" in obj.__dict__.keys():
+    if hasattr(obj, "offset"):
         offset = ipywidgets.FloatText()
         widgets.append(labelme("Offset", offset))
         link((obj, "offset"), (offset, "value"))
