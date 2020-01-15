@@ -441,7 +441,7 @@ def remove_background_ipy(obj, **kwargs):
     wdict = {}
     left = ipywidgets.FloatText(disabled=True, description="Left")
     right = ipywidgets.FloatText(disabled=True, description="Right")
-    red_chisq = ipywidgets.FloatText(disabled=True, description="Reduced Chi2")
+    red_chisq = ipywidgets.FloatText(disabled=True, description="χ²")
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
     link((obj, "red_chisq"), (red_chisq, "value"))
