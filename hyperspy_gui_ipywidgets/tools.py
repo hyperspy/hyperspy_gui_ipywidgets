@@ -507,6 +507,7 @@ def remove_background_ipy(obj, **kwargs):
 
     def on_apply_clicked(b):
         obj.apply()
+        obj.span_selector_switch(False)
         box.close()
     apply.on_click(on_apply_clicked)
 
