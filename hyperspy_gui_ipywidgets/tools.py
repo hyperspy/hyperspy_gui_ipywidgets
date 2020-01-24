@@ -830,10 +830,14 @@ def find_peaks2D_ipy(obj, **kwargs):
 
     def on_compute_clicked(b):
         obj.compute_navigation()
+        obj.signal._plot.close()
+        obj.close()
+        box.close()
     compute.on_click(on_compute_clicked)
 
     def on_close_clicked(b):
         obj.signal._plot.close()
+        obj.close()
         box.close()
     close.on_click(on_close_clicked)
     return {
