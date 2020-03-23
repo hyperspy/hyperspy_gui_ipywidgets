@@ -52,7 +52,7 @@ GUI:
       hyperspy.Signal1D.spikes_removal_tool:
         module: hyperspy_gui_ipywidgets.tools
         function: spikes_removal_ipy
-      hyperspy.Signal2D.find_peaks2D:
+      hyperspy.Signal2D.find_peaks:
         module: hyperspy_gui_ipywidgets.tools
         function: find_peaks2D_ipy
       hyperspy.Point1DROI:

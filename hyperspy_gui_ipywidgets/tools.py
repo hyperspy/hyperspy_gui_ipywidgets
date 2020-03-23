@@ -637,7 +637,7 @@ def find_peaks2D_ipy(obj, **kwargs):
     local_max_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
     # For "max" method
     max_alpha = ipywidgets.FloatSlider(min=0, max=6, value=3)
-    max_size = ipywidgets.IntSlider(min=1, max=20, value=10)
+    max_distance = ipywidgets.IntSlider(min=1, max=20, value=10)
     # For "minmax" method
     minmax_distance = ipywidgets.FloatSlider(min=0, max=6, value=3)
     minmax_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
@@ -670,7 +670,7 @@ def find_peaks2D_ipy(obj, **kwargs):
     wdict["local_max_distance"] = local_max_distance
     wdict["local_max_threshold"] = local_max_threshold
     wdict["max_alpha"] = max_alpha
-    wdict["max_size"] = max_size
+    wdict["max_distance"] = max_distance
     wdict["minmax_distance"] = minmax_distance
     wdict["minmax_threshold"] = minmax_threshold
     wdict["zaefferer_grad_threshold"] = zaefferer_grad_threshold
@@ -697,7 +697,7 @@ def find_peaks2D_ipy(obj, **kwargs):
     link((obj, "local_max_distance"), (local_max_distance, "value"))
     link((obj, "local_max_threshold"), (local_max_threshold, "value"))
     link((obj, "max_alpha"), (max_alpha, "value"))
-    link((obj, "max_size"), (max_size, "value"))
+    link((obj, "max_distance"), (max_distance, "value"))
     link((obj, "minmax_distance"), (minmax_distance, "value"))
     link((obj, "minmax_threshold"), (minmax_threshold, "value"))
     link((obj, "zaefferer_grad_threshold"), (zaefferer_grad_threshold, "value"))
@@ -731,9 +731,9 @@ def find_peaks2D_ipy(obj, **kwargs):
             labelme("Distance", local_max_distance),
             labelme("Threshold", local_max_threshold),
             ])
-    box_max = ipywidgets.VBox([#max_alpha, max_size
+    box_max = ipywidgets.VBox([#max_alpha, max_distance
             labelme("Alpha", max_alpha),
-            labelme("Size", max_size),
+            labelme("Distance", max_distance),
             ])
     box_minmax = ipywidgets.VBox([
             labelme("Distance", minmax_distance),
@@ -776,7 +776,7 @@ def find_peaks2D_ipy(obj, **kwargs):
                 "Stat": box_stat,
                 "Laplacian of Gaussians": box_log,
                 "Difference of Gaussians": box_dog,
-                "Cross correlation": box_xc}
+                "Template matching": box_xc}
 
     method = enum2dropdown(obj.traits()["method"])
     def update_method_parameters(change):
@@ -797,7 +797,7 @@ def find_peaks2D_ipy(obj, **kwargs):
             box_log.layout.display = ""
         elif change.new == "Difference of Gaussians":
             box_dog.layout.display = ""
-        elif change.new == "Cross correlation":
+        elif change.new == "Template matching":
             box_xc.layout.display = ""
 
     method.observe(update_method_parameters, "value")
