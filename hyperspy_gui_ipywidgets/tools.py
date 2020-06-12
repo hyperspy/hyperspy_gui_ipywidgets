@@ -149,6 +149,57 @@ def calibrate_ipy(obj, **kwargs):
         "wdict": wdict,
     }
 
+@add_display_arg
+def print_edges_table_ipy(obj, **kwargs):
+    # Define widgets
+    wdict = {}
+    axis = obj.axis
+    left = ipywidgets.FloatText(disabled=True, layout={'width': '20%'})
+    right = ipywidgets.FloatText(disabled=True, layout={'width': '20%'})
+    units = ipywidgets.Label(style={'description_width': 'initial'})
+    major = ipywidgets.Checkbox(value=False, description='Only major edge',
+                                indent=False)
+    update = ipywidgets.Checkbox(value=True, description='Update table',
+                                 indent=False)
+    table = ipywidgets.interactive_output(obj.show_edges_table, 
+                                          {'x0': left,
+                                           'x1': right,
+                                           'only_major': major,
+                                           'update': update}
+                                          ) 
+    help = ipywidgets.HTML(
+        "Click on the signal figure and drag to the right to select a signal "
+        "range. Drag the rectangle or change its border to display edges in "
+        "different signal range.",)
+    help = ipywidgets.Accordion(children=[help])
+    help.set_title(0, "Help")
+
+    wdict["left"] = left
+    wdict["right"] = right
+    wdict["units"] = units
+    wdict["help"] = help
+    wdict["major"] = major
+    wdict["update"] = update
+    wdict["table"] = table
+
+    # Connect
+    link((obj, "ss_left_value"), (left, "value"))
+    link((obj, "ss_right_value"), (right, "value"))
+    link((axis, "units"), (units, "value"))
+
+    energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
+                                  units])
+    control_box = ipywidgets.VBox([energy_box, update, major])
+
+    box = ipywidgets.VBox([
+        ipywidgets.HBox([table, control_box]),
+        help  
+    ])
+
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
 
 @add_display_arg
 def smooth_savitzky_golay_ipy(obj, **kwargs):
