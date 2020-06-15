@@ -161,11 +161,18 @@ def print_edges_table_ipy(obj, **kwargs):
                                 indent=False)
     update = ipywidgets.Checkbox(value=True, description='Update table',
                                  indent=False)
+    order = ipywidgets.Dropdown(options=['closest', 'ascending', 'descending'],
+                                value='closest',
+                                description='Sort energy by: ',
+                                disabled=False,
+                                style={'description_width': 'initial'}
+                                )
     table = ipywidgets.interactive_output(obj.show_edges_table, 
                                           {'x0': left,
                                            'x1': right,
                                            'only_major': major,
-                                           'update': update}
+                                           'update': update,
+                                           'order': order}
                                           ) 
     help = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
@@ -180,6 +187,7 @@ def print_edges_table_ipy(obj, **kwargs):
     wdict["help"] = help
     wdict["major"] = major
     wdict["update"] = update
+    wdict["order"] = order
     wdict["table"] = table
 
     # Connect
@@ -189,7 +197,7 @@ def print_edges_table_ipy(obj, **kwargs):
 
     energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
                                   units])
-    control_box = ipywidgets.VBox([energy_box, update, major])
+    control_box = ipywidgets.VBox([energy_box, order, update, major])
 
     box = ipywidgets.VBox([
         ipywidgets.HBox([table, control_box]),
