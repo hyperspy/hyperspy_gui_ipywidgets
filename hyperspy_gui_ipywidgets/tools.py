@@ -167,13 +167,17 @@ def print_edges_table_ipy(obj, **kwargs):
                                 disabled=False,
                                 style={'description_width': 'initial'}
                                 )
+    edges_list = ipywidgets.SelectMultiple(rows=10, description='Show edge(s)',
+                                           disabled=False,
+                                           style={'description_width': 'initial'})
     table = ipywidgets.interactive_output(obj.show_edges_table, 
                                           {'x0': left,
                                            'x1': right,
                                            'only_major': major,
                                            'update': update,
-                                           'order': order}
-                                          ) 
+                                           'order': order,
+                                           'active_edges': edges_list}
+                                          )
     help = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Drag the rectangle or change its border to display edges in "
@@ -188,16 +192,18 @@ def print_edges_table_ipy(obj, **kwargs):
     wdict["major"] = major
     wdict["update"] = update
     wdict["order"] = order
+    wdict["edges_list"] = edges_list
     wdict["table"] = table
 
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
     link((axis, "units"), (units, "value"))
+    link((obj, "edges_list"), (edges_list, "options"))
 
     energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
                                   units])
-    control_box = ipywidgets.VBox([energy_box, order, update, major])
+    control_box = ipywidgets.VBox([energy_box, order, update, major, edges_list])
 
     box = ipywidgets.VBox([
         ipywidgets.HBox([table, control_box]),
