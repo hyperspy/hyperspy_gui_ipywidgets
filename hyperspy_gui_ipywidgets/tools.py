@@ -154,29 +154,35 @@ def print_edges_table_ipy(obj, **kwargs):
     # Define widgets
     wdict = {}
     axis = obj.axis
-    left = ipywidgets.FloatText(disabled=True, layout={'width': '20%'})
-    right = ipywidgets.FloatText(disabled=True, layout={'width': '20%'})
-    units = ipywidgets.Label(style={'description_width': 'initial'})
+    style_d = {'description_width': 'initial'}
+    left = ipywidgets.FloatText(disabled=True, layout={'width': '10%'})
+    right = ipywidgets.FloatText(disabled=True, layout={'width': '10%'})
+    units = ipywidgets.Label(style=style_d)
     major = ipywidgets.Checkbox(value=False, description='Only major edge',
-                                indent=False)
+                                indent=False, layout={'width': '50%'})
     update = ipywidgets.Checkbox(value=True, description='Update table',
-                                 indent=False)
+                                 indent=False, layout={'width': '50%'})
+    complmt = ipywidgets.Checkbox(value=False, description='Complementary edge',
+                                 indent=False, layout={'width': '50%'})
     order = ipywidgets.Dropdown(options=['closest', 'ascending', 'descending'],
                                 value='closest',
                                 description='Sort energy by: ',
                                 disabled=False,
-                                style={'description_width': 'initial'}
+                                style=style_d
                                 )
     edges_list = ipywidgets.SelectMultiple(rows=10, description='Show edge(s)',
-                                           disabled=False,
-                                           style={'description_width': 'initial'})
+                                           disabled=False, style=style_d, layout={'width': '50%'})
+    comp_edges_list = ipywidgets.SelectMultiple(rows=10, disabled=False,
+                                                description='Other edge(s)',
+                                                style=style_d, layout={'width': '50%'})
     table = ipywidgets.interactive_output(obj.show_edges_table, 
                                           {'x0': left,
                                            'x1': right,
                                            'only_major': major,
                                            'update': update,
                                            'order': order,
-                                           'active_edges': edges_list}
+                                           'active_edges': edges_list,
+                                           'show_complmt': complmt}
                                           )
     help = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
@@ -193,6 +199,7 @@ def print_edges_table_ipy(obj, **kwargs):
     wdict["update"] = update
     wdict["order"] = order
     wdict["edges_list"] = edges_list
+    wdict["comp_edges_list"] = comp_edges_list
     wdict["table"] = table
 
     # Connect
@@ -200,10 +207,32 @@ def print_edges_table_ipy(obj, **kwargs):
     link((obj, "ss_right_value"), (right, "value"))
     link((axis, "units"), (units, "value"))
     link((obj, "edges_list"), (edges_list, "options"))
+    link((obj, "comp_edges_list"), (comp_edges_list, "options"))
+    link((obj, "active_compl_edges"), (comp_edges_list, "value"))
+
+    def remove_markers(change):
+        obj._clear_all_markers()
+        comp_edges_list.options = tuple()    
+    major.observe(remove_markers)
+    order.observe(remove_markers)
+    
+    def remove_markers_before_update(change):
+        if not change['old'] and change['new']:
+            obj._clear_all_markers()
+            obj.active_edges = None
+            comp_edges_list.options = tuple()
+    update.observe(remove_markers_before_update, names='value')
+
+    def comp_edges_list_handler(change):
+        complementary = change['new']
+        obj._plot_labels(active=obj.active_edges, complementary=complementary)
+    comp_edges_list.observe(comp_edges_list_handler, names='value')
 
     energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
-                                  units])
-    control_box = ipywidgets.VBox([energy_box, order, update, major, edges_list])
+                                  units, order])
+    check_box = ipywidgets.HBox([update, major, complmt])
+    edge_box = ipywidgets.HBox([edges_list, comp_edges_list])
+    control_box = ipywidgets.VBox([energy_box, check_box, edge_box])
 
     box = ipywidgets.VBox([
         ipywidgets.HBox([table, control_box]),
