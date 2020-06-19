@@ -195,9 +195,8 @@ def print_edges_table_ipy(obj, **kwargs):
     help = ipywidgets.Accordion(children=[help])
     help.set_title(0, "Help")
     close = ipywidgets.Button(description="Close", tooltip="Close the widget.")
-    reset = ipywidgets.Button(description="Reset selector", 
+    reset = ipywidgets.Button(description="Reset", 
                               tooltip="Reset the span selector.")
-
 
     wdict["left"] = left
     wdict["right"] = right
@@ -210,6 +209,8 @@ def print_edges_table_ipy(obj, **kwargs):
     wdict["edges_list"] = edges_list
     wdict["comp_edges_list"] = comp_edges_list
     wdict["table"] = table
+    wdict["reset"] = reset
+    wdict["close"] = close
 
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
@@ -242,6 +243,15 @@ def print_edges_table_ipy(obj, **kwargs):
         box.close()
     close.on_click(on_close_clicked)
 
+    def on_reset_clicked(b):
+        # ss_left_value is linked with left.value, this can prevent cyclic
+        # referencing
+        obj.span_selector_switch(False)
+        left.value = 0
+        right.value = 0
+        obj.span_selector_switch(True)
+    reset.on_click(on_reset_clicked)
+
     energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
                                   units])
     check_box = ipywidgets.HBox([update, major, complmt])
@@ -251,7 +261,7 @@ def print_edges_table_ipy(obj, **kwargs):
     box = ipywidgets.VBox([
         ipywidgets.HBox([table, control_box]),
         help,
-        close
+        ipywidgets.HBox([reset, close]),
     ])
 
     return {
