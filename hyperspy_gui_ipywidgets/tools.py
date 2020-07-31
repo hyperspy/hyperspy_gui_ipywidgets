@@ -260,7 +260,7 @@ def print_edges_table_ipy(obj, **kwargs):
     def on_reset_clicked(b):
         # ss_left_value is linked with left.value, this can prevent cyclic
         # referencing
-        obj._clear_all_markers()
+        obj._clear_markers()
         obj.span_selector_switch(False)
         left.value = 0
         right.value = 0
