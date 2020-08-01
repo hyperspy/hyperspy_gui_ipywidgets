@@ -1,7 +1,7 @@
 import ipywidgets
 import traits.api as t
 
-from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
+from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
@@ -334,7 +334,6 @@ def smooth_butterworth(obj, **kwargs):
         "wdict": wdict,
     }
 
-
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
@@ -344,10 +343,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
                                description="Norm",
                                value=obj.norm)
-    vmin_percentile = ipywidgets.FloatSlider(0.5, min=0.0, max=100.0,
-                                              description="Vmin percentile")
-    vmax_percentile = ipywidgets.FloatSlider(0.5, min=0.0, max=100.0,
-                                              description="Vmax percentile")
+    percentile = ipywidgets.FloatRangeSlider(value=[0.0, 100.0],
+                                             min=0.0, max=100.0, step=0.1,
+                                             description="Vmin/vmax percentile",
+                                             readout_format='.1f')
     gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
     linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
                                        description="Linear threshold")
@@ -371,8 +370,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["right"] = right
     wdict["bins"] = bins
     wdict["norm"] = norm
-    wdict["vmin_percentile"] = vmin_percentile
-    wdict["vmax_percentile"] = vmax_percentile
+    wdict["percentile"] = percentile
     wdict["gamma"] = gamma
     wdict["linthresh"] = linthresh
     wdict["linscale"] = linscale
@@ -381,13 +379,27 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["apply_button"] = apply
     wdict["reset_button"] = reset
 
+    def transform_vmin(value):
+        return (value, percentile.upper)
+
+    def transform_vmin_inv(value):
+        return value[0]
+
+    def transform_vmax(value):
+        return (percentile.lower, value)
+
+    def transform_vmax_inv(value):
+        return value[1]
+
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
     link((obj, "bins"), (bins, "value"))
     link((obj, "norm"), (norm, "value"))
-    link((obj, "vmin_percentile"), (vmin_percentile, "value"))
-    link((obj, "vmax_percentile"), (vmax_percentile, "value"))
+    link((obj, "vmin_percentile"), (percentile, "value"),
+         (transform_vmin, transform_vmin_inv))
+    link((obj, "vmax_percentile"), (percentile, "value"),
+         (transform_vmax, transform_vmax_inv))
     link((obj, "gamma"), (gamma, "value"))
     link((obj, "linthresh"), (linthresh, "value"))
     link((obj, "linscale"), (linscale, "value"))
@@ -412,8 +424,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     def disable_parameters(change):
         # Necessary for the initialisation
         v = change if isinstance(change, bool) else change.new
-        vmin_percentile.disabled = not v
-        vmax_percentile.disabled = not v
+        percentile.disabled = not v
 
     disable_parameters(obj.auto)
     auto.observe(disable_parameters, "value")
@@ -429,8 +440,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     box = ipywidgets.VBox([left,
                            right,
                            auto,
-                           vmin_percentile,
-                           vmax_percentile,
+                           percentile,
                            bins,
                            norm,
                            gamma,
