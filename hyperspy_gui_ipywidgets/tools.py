@@ -6,7 +6,7 @@ from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
 from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
-                                   IMAGE_CONTRAST_EDITOR_HELP)
+                                   IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
 
 
 @add_display_arg
@@ -353,7 +353,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     linscale = ipywidgets.FloatSlider(0.1, min=0.001, max=10.0, step=0.001,
                                       description="Linear scale")
     auto = ipywidgets.Checkbox(True, description="Auto")
-    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP)
+    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
