@@ -1,7 +1,7 @@
 import ipywidgets
 import traits.api as t
 
-from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
+from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg)
 from link_traits import link
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
@@ -532,7 +532,7 @@ def spikes_removal_ipy(obj, **kwargs):
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
     help = ipywidgets.HTML(
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
 
     show_diff = ipywidgets.Button(
