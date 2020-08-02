@@ -1,5 +1,3 @@
-import traitlets
-import traits.api as t
 import traits
 import ipywidgets
 
@@ -24,10 +22,8 @@ def directory2unicode(trait, label):
 
 
 def enum2dropdown(trait, label):
-    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Dropdown(
-        options=trait.trait_type.values,
-        description_tooltip=description_tooltip,)
+        options=trait.trait_type.values)
     return labelme(widget=widget, label=label)
 
 
@@ -38,6 +34,7 @@ def range2floatrangeslider(trait, label):
         max=trait.trait_type._high,
         description_tooltip=description_tooltip,)
     return labelme(widget=widget, label=label)
+
 
 # Trait types must be converted to the appropriate ipywidget
 TRAITS2IPYWIDGETS = {
