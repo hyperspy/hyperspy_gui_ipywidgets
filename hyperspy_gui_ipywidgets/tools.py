@@ -169,18 +169,18 @@ def print_edges_table_ipy(obj, **kwargs):
                                 disabled=False,
                                 style=style_d
                                 )
-    update = ipywidgets.Button(description='Update', layout={'width': 'initial'})
+    update = ipywidgets.Button(description='Refresh table', layout={'width': 'initial'})
     gb = ipywidgets.GridBox(layout=ipywidgets.Layout(
-            grid_template_columns="70px 125px 75px 250px")) 
+            grid_template_columns="70px 125px 75px 250px"))
     help = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Drag the rectangle or change its border to display edges in "
-        "different signal range. Select edges to show their positions " 
+        "different signal range. Select edges to show their positions "
         "on the signal.",)
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(description="Close", tooltip="Close the widget.")
-    reset = ipywidgets.Button(description="Reset", 
+    reset = ipywidgets.Button(description="Reset",
                               tooltip="Reset the span selector.")
 
     header = ('<p style="padding-left: 1em; padding-right: 1em; '
@@ -213,9 +213,9 @@ def print_edges_table_ipy(obj, **kwargs):
         edges, energy, relevance, description = obj.update_table()
 
         # header
-        items = [ipywidgets.HTML(header.format('edge')), 
-                 ipywidgets.HTML(header.format('onset energy (eV)')), 
-                 ipywidgets.HTML(header.format('relevance')), 
+        items = [ipywidgets.HTML(header.format('edge')),
+                 ipywidgets.HTML(header.format('onset energy (eV)')),
+                 ipywidgets.HTML(header.format('relevance')),
                  ipywidgets.HTML(header.format('description'))]
 
         # rows
@@ -228,7 +228,7 @@ def print_edges_table_ipy(obj, **kwargs):
                 btn_state = False
 
             btn = ipywidgets.ToggleButton(value=btn_state,
-                                          description=edge, 
+                                          description=edge,
                                           layout=ipywidgets.Layout(width='70px'))
             btn.observe(obj.update_active_edge,  names='value')
             obj.btns.append(btn)
@@ -246,7 +246,7 @@ def print_edges_table_ipy(obj, **kwargs):
         obj.update_table()
         obj.check_btn_state()
     complmt.observe(on_complementary_toggled)
-    
+
     def on_order_changed(change):
         obj._get_edges_info_within_energy_axis()
         update_table(change)
@@ -268,7 +268,7 @@ def print_edges_table_ipy(obj, **kwargs):
         update_table(b)
     reset.on_click(on_reset_clicked)
 
-    energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right, 
+    energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right,
                                    units])
     check_box = ipywidgets.HBox([major, complmt])
     control_box = ipywidgets.VBox([energy_box, update, order, check_box])
