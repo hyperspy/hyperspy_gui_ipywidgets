@@ -3,7 +3,7 @@ import traits.api as t
 
 from link_traits import link
 from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
-                                   IMAGE_CONTRAST_EDITOR_HELP)
+                                   IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
 
 from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
         add_display_arg)
@@ -336,25 +336,26 @@ def smooth_butterworth(obj, **kwargs):
         "wdict": wdict,
     }
 
-
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
-    left = ipywidgets.FloatText(disabled=True, description="Min")
-    right = ipywidgets.FloatText(disabled=True, description="Max")
+    left = ipywidgets.FloatText(disabled=True, description="Vmin")
+    right = ipywidgets.FloatText(disabled=True, description="Vmax")
     bins = ipywidgets.IntText(description="Bins")
     norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
                                description="Norm",
                                value=obj.norm)
-    saturated_pixels = ipywidgets.FloatSlider(0.05, min=0.0, max=5.0,
-                                              description="Saturated pixels")
+    percentile = ipywidgets.FloatRangeSlider(value=[0.0, 100.0],
+                                             min=0.0, max=100.0, step=0.1,
+                                             description="Vmin/vmax percentile",
+                                             readout_format='.1f')
     gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
     linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
                                        description="Linear threshold")
     linscale = ipywidgets.FloatSlider(0.1, min=0.001, max=10.0, step=0.001,
                                       description="Linear scale")
     auto = ipywidgets.Checkbox(True, description="Auto")
-    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP)
+    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
     wdict["help"] = help
     help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
@@ -371,7 +372,7 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["right"] = right
     wdict["bins"] = bins
     wdict["norm"] = norm
-    wdict["saturated_pixels"] = saturated_pixels
+    wdict["percentile"] = percentile
     wdict["gamma"] = gamma
     wdict["linthresh"] = linthresh
     wdict["linscale"] = linscale
@@ -380,18 +381,33 @@ def image_constast_editor_ipy(obj, **kwargs):
     wdict["apply_button"] = apply
     wdict["reset_button"] = reset
 
+    def transform_vmin(value):
+        return (value, percentile.upper)
+
+    def transform_vmin_inv(value):
+        return value[0]
+
+    def transform_vmax(value):
+        return (percentile.lower, value)
+
+    def transform_vmax_inv(value):
+        return value[1]
+
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
     link((obj, "bins"), (bins, "value"))
     link((obj, "norm"), (norm, "value"))
-    link((obj, "saturated_pixels"), (saturated_pixels, "value"))
+    link((obj, "vmin_percentile"), (percentile, "value"),
+         (transform_vmin, transform_vmin_inv))
+    link((obj, "vmax_percentile"), (percentile, "value"),
+         (transform_vmax, transform_vmax_inv))
     link((obj, "gamma"), (gamma, "value"))
     link((obj, "linthresh"), (linthresh, "value"))
     link((obj, "linscale"), (linscale, "value"))
     link((obj, "auto"), (auto, "value"))
 
-    def enable_parameters(change):
+    def display_parameters(change):
         # Necessary for the initialisation
         v = change if isinstance(change, str) else change.new
         if v == "Symlog":
@@ -404,8 +420,16 @@ def image_constast_editor_ipy(obj, **kwargs):
             gamma.layout.display = ""
         else:
             gamma.layout.display = "none"
-    enable_parameters(obj.norm)
-    norm.observe(enable_parameters, "value")
+    display_parameters(obj.norm)
+    norm.observe(display_parameters, "value")
+
+    def disable_parameters(change):
+        # Necessary for the initialisation
+        v = change if isinstance(change, bool) else change.new
+        percentile.disabled = not v
+
+    disable_parameters(obj.auto)
+    auto.observe(disable_parameters, "value")
 
     def on_apply_clicked(b):
         obj.apply()
@@ -417,13 +441,13 @@ def image_constast_editor_ipy(obj, **kwargs):
 
     box = ipywidgets.VBox([left,
                            right,
+                           auto,
+                           percentile,
                            bins,
                            norm,
-                           saturated_pixels,
                            gamma,
                            linthresh,
                            linscale,
-                           auto,
                            help,
                            ipywidgets.HBox((apply, reset, close)),
                            ])
@@ -443,8 +467,10 @@ def remove_background_ipy(obj, **kwargs):
     wdict = {}
     left = ipywidgets.FloatText(disabled=True, description="Left")
     right = ipywidgets.FloatText(disabled=True, description="Right")
+    red_chisq = ipywidgets.FloatText(disabled=True, description="red-χ²")
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "red_chisq"), (red_chisq, "value"))
     fast = ipywidgets.Checkbox(description="Fast")
     zero_fill = ipywidgets.Checkbox(description="Zero Fill")
     help = ipywidgets.HTML(
@@ -458,7 +484,7 @@ def remove_background_ipy(obj, **kwargs):
         "Otherwise the background subtraction will be performed in the "
         "pre-fitting region as well.",)
     wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
@@ -489,13 +515,14 @@ def remove_background_ipy(obj, **kwargs):
     link((obj, "zero_fill"), (zero_fill, "value"))
     wdict["left"] = left
     wdict["right"] = right
+    wdict["red_chisq"] = red_chisq
     wdict["fast"] = fast
     wdict["zero_fill"] = zero_fill
     wdict["polynomial_order"] = polynomial_order
     wdict["background_type"] = background_type
     wdict["apply_button"] = apply
     box = ipywidgets.VBox([
-        left, right,
+        left, right, red_chisq,
         background_type,
         polynomial_order,
         fast,
@@ -506,6 +533,7 @@ def remove_background_ipy(obj, **kwargs):
 
     def on_apply_clicked(b):
         obj.apply()
+        obj.span_selector_switch(False)
         box.close()
     apply.on_click(on_apply_clicked)
 
@@ -530,7 +558,7 @@ def spikes_removal_ipy(obj, **kwargs):
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
     help = ipywidgets.HTML(
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
 
     show_diff = ipywidgets.Button(

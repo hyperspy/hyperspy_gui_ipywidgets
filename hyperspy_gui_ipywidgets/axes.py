@@ -46,8 +46,7 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
         link((axis, "scale"), (vwidget, "step"))
         name = ipywidgets.Label(str(axis),
                                 layout=ipywidgets.Layout(width="15%"))
-        units = ipywidgets.Label(layout=ipywidgets.Layout(width="5%"),
-                                 disabled=True)
+        units = ipywidgets.Label(layout=ipywidgets.Layout(width="5%"))
         link((axis, "name"), (name, "value"))
         link((axis, "units"), (units, "value"))
         bothw = ipywidgets.HBox([name, iwidget, vwidget, units])
