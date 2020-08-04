@@ -465,8 +465,10 @@ def remove_background_ipy(obj, **kwargs):
     wdict = {}
     left = ipywidgets.FloatText(disabled=True, description="Left")
     right = ipywidgets.FloatText(disabled=True, description="Right")
+    red_chisq = ipywidgets.FloatText(disabled=True, description="red-χ²")
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "red_chisq"), (red_chisq, "value"))
     fast = ipywidgets.Checkbox(description="Fast")
     zero_fill = ipywidgets.Checkbox(description="Zero Fill")
     help = ipywidgets.HTML(
@@ -480,7 +482,7 @@ def remove_background_ipy(obj, **kwargs):
         "Otherwise the background subtraction will be performed in the "
         "pre-fitting region as well.",)
     wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
@@ -511,13 +513,14 @@ def remove_background_ipy(obj, **kwargs):
     link((obj, "zero_fill"), (zero_fill, "value"))
     wdict["left"] = left
     wdict["right"] = right
+    wdict["red_chisq"] = red_chisq
     wdict["fast"] = fast
     wdict["zero_fill"] = zero_fill
     wdict["polynomial_order"] = polynomial_order
     wdict["background_type"] = background_type
     wdict["apply_button"] = apply
     box = ipywidgets.VBox([
-        left, right,
+        left, right, red_chisq,
         background_type,
         polynomial_order,
         fast,
@@ -528,6 +531,7 @@ def remove_background_ipy(obj, **kwargs):
 
     def on_apply_clicked(b):
         obj.apply()
+        obj.span_selector_switch(False)
         box.close()
     apply.on_click(on_apply_clicked)
 
@@ -552,7 +556,7 @@ def spikes_removal_ipy(obj, **kwargs):
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
     help = ipywidgets.HTML(
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
 
     show_diff = ipywidgets.Button(
