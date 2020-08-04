@@ -1,5 +1,3 @@
-import traitlets
-import traits.api as t
 import traits
 import ipywidgets
 
@@ -9,35 +7,34 @@ from hyperspy_gui_ipywidgets.utils import (
 
 
 def bool2checkbox(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Checkbox(
-        tooltip=tooltip,
+        description_tooltip=description_tooltip,
     )
     return labelme(widget=widget, label=label)
 
 
 def directory2unicode(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Text(
-        tooltip=tooltip,)
+        description_tooltip=description_tooltip,)
     return labelme(widget=widget, label=label)
 
 
 def enum2dropdown(trait, label):
-    tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Dropdown(
-        options=trait.trait_type.values,
-        tooltip=tooltip,)
+        options=trait.trait_type.values)
     return labelme(widget=widget, label=label)
 
 
 def range2floatrangeslider(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatSlider(
         min=trait.trait_type._low,
         max=trait.trait_type._high,
-        tooltip=tooltip,)
+        description_tooltip=description_tooltip,)
     return labelme(widget=widget, label=label)
+
 
 # Trait types must be converted to the appropriate ipywidget
 TRAITS2IPYWIDGETS = {
@@ -69,10 +66,10 @@ def show_preferences_widget(obj, **kwargs):
             link((getattr(obj, tab), trait_name),
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
+    # This defines the order of the tab in the widget
     titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
-        children=[ipytabs[title.replace(" ", "")] for title in titles],
-        titles=titles)
+        children=[ipytabs[title] for title in titles])
     for i, title in enumerate(titles):
         ipytabs_.set_title(i, title)
     save_button = ipywidgets.Button(
