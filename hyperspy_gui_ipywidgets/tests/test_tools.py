@@ -167,9 +167,7 @@ class TestTools:
         im.plot()
         ceditor = ImageContrastEditor(im._plot.signal_plot)
         ceditor.ax.figure.canvas.draw_idle()
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
         wd = ceditor.gui(**KWARGS)["ipywidgets"]["wdict"]
-        assert ceditor.saturated_pixels == 0.05
         assert wd["linthresh"].layout.display == "none"  # not visible
         assert wd["linscale"].layout.display == "none"  # not visible
         assert wd["gamma"].layout.display == "none"  # not visible
@@ -193,9 +191,12 @@ class TestTools:
 
 
         wd["norm"].value = 'Linear'
-        wd["saturated_pixels"].value = 0.5
-        assert ceditor.saturated_pixels == 0.5
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 29.5263052E-4)
+        percentile = [1.0, 99.0]
+        wd["percentile"].value = percentile
+        assert ceditor.vmin_percentile == percentile[0]
+        assert ceditor.vmax_percentile == percentile[1]
+        assert im._plot.signal_plot.vmin == f'{percentile[0]}th'
+        assert im._plot.signal_plot.vmax == f'{percentile[1]}th'
 
         wd["norm"].value = 'Power'
         assert ceditor.norm == 'Power'
@@ -208,8 +209,6 @@ class TestTools:
         wd["auto"].value = False
         assert ceditor.auto is False
 
-        vmax = im._plot.signal_plot.vmax
-        vmin = im._plot.signal_plot.vmin
         wd["left"].value = 0.2
         assert ceditor.ss_left_value == 0.2
         wd["right"].value = 0.5
@@ -222,7 +221,5 @@ class TestTools:
 
         # Reset to default values
         wd["reset_button"]._click_handlers(wd["reset_button"])    # Trigger it
-        assert ceditor.saturated_pixels == 0.05
-        assert wd["saturated_pixels"].value == 0.05
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
-        np.testing.assert_allclose(im._plot.signal_plot.vmax, 0.9971772199)
+        assert im._plot.signal_plot.vmin == '0.0th'
+        assert im._plot.signal_plot.vmax == '100.0th'

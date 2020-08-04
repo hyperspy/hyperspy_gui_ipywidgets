@@ -126,5 +126,5 @@ def test_fit_component():
     wd["only_current"].value = not fc.only_current
     assert wd["only_current"].value == fc.only_current
     assert g2.centre.value == 8
-    np.testing.assert_allclose(g1.centre.value, 0.8042438333279404)
-    np.testing.assert_allclose(g1.sigma.value, 0.9650467153128363)
+    np.testing.assert_allclose(g1.centre.value, 0.804, rtol=1E-2)
+    np.testing.assert_allclose(g1.sigma.value, 0.965, rtol=1E-2)

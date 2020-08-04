@@ -1,5 +1,3 @@
-import traitlets
-import traits.api as t
 import traits
 import ipywidgets
 
