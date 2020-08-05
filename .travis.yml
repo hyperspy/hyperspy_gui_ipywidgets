@@ -18,6 +18,14 @@ matrix:
       dist: xenial
       sudo: true
       env: hspy_version="Rnm"
+    - python: 3.8
+      dist: xenial
+      sudo: true
+      env: hspy_version="release"
+    - python: 3.8
+      dist: xenial
+      sudo: true
+      env: hspy_version="Rnm"
   allow_failures:
     - python: "nightly"
 install:
