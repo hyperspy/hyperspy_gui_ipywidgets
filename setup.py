@@ -11,18 +11,20 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-    # if pandoc is not installed: raise an OSError
-except (ImportError, OSError):
-    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = f.read()
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 
 version = {}
 with open(path.join(here, "hyperspy_gui_ipywidgets", "version.py")) as fp:
     exec(fp.read(), version)
+
+PROJECT_URLS = {
+    'Bug Tracker': 'https://github.com/hyperspy/hyperspy_gui_ipywidgets/issues',
+    'Documentation': 'https://hyperspy.org/hyperspy-doc/current/index.html',
+    'Source Code': 'https://github.com/hyperspy_gui_ipywidgets/hyperspy',
+    'Support' : 'https://gitter.im/hyperspy/hyperspy'
+}
 
 
 setup(
@@ -35,13 +37,14 @@ setup(
 
     description=('ipywidgets GUI elements for HyperSpy.'),
     long_description=long_description,
+    long_description_content_type="text/markdown",
 
     # The project's main homepage.
     url='https://github.com/hyperspy/hyperspy_gui_ipywidgets',
+    project_urls=PROJECT_URLS,
 
     # Author details
     author='The HyperSpy Developers',
-    author_email='devel@hyperspy.org',
 
     # Choose your license
     license='GPLv3',
