@@ -74,7 +74,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['hyperspy>=1.5', 'ipywidgets>=6.0', 'link_traits'],
+    install_requires=['hyperspy>=1.6', 'ipywidgets>=6.0', 'link_traits'],
 
 
     # List additional groups of dependencies here (e.g. development
