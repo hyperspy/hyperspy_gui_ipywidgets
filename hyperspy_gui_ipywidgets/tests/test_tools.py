@@ -2,7 +2,8 @@ import numpy as np
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy.signal_tools import Signal1DCalibration, ImageContrastEditor
+from hyperspy.signal_tools import (Signal1DCalibration, ImageContrastEditor,
+                                   EdgesRange)
 
 
 class TestTools:
@@ -223,3 +224,30 @@ class TestTools:
         wd["reset_button"]._click_handlers(wd["reset_button"])    # Trigger it
         assert im._plot.signal_plot.vmin == '0.0th'
         assert im._plot.signal_plot.vmax == '100.0th'
+
+    def test_eels_table_tool(self):
+        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        s.plot()
+        er = EdgesRange(s)
+
+        er.ss_left_value = 500
+        er.ss_right_value = 550
+
+        wd = er.gui(**KWARGS)["ipywidgets"]["wdict"]
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd["units"].value == 'eV'
+        assert wd["left"].value == 500
+        assert wd["right"].value == 550
+        assert len(wd['gb'].children) == 36 # 9 edges displayed
+
+        wd['major'].value = True
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert len(wd['gb'].children) == 24 # 6 edges displayed
+        assert wd['gb'].children[4].description == 'Sb_M4'
+
+        wd['order'].value = 'ascending'
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd['gb'].children[4].description == 'V_L3'
+
+        wd["reset"]._click_handlers(wd["reset"])  # reset the selector
+        assert len(wd['gb'].children) == 4 # only header displayed
