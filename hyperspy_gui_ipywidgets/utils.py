@@ -4,10 +4,8 @@ import ipywidgets
 from traits.api import Undefined
 import IPython.display
 
-from hyperspy.ui_registry import register_widget
 
 
-register_ipy_widget = functools.partial(register_widget, toolkit="ipywidgets")
 
 FORM_ITEM_LAYOUT = ipywidgets.Layout(
     display='flex',
@@ -48,18 +46,28 @@ def get_label(trait, label):
     return label
 
 
-def enum2dropdown(trait):
-    tooltip = trait.desc if trait.desc else ""
+def enum2dropdown(trait, description=None):
     widget = ipywidgets.Dropdown(
-        options=trait.trait_type.values,
-        tooltip=tooltip,)
+        options=trait.trait_type.values)
+    if description is not None:
+        tooltip = trait.desc if trait.desc else ""
+        widget.description = description
+        widget.description_tooltip = tooltip
     return widget
 
 
 def float2floattext(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatText(
-        tooltip=tooltip,
+        description_tooltip=description_tooltip,
+    )
+    return labelme(widget=widget, label=label)
+
+
+def str2text(trait, label):
+    description = trait.desc if trait.desc else ""
+    widget = ipywidgets.Text(
+        description=description,
     )
     return labelme(widget=widget, label=label)
 

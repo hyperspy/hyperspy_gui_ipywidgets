@@ -1,16 +1,16 @@
 import ipywidgets
-import traitlets
 import traits.api as t
 
-from hyperspy_gui_ipywidgets.utils import (
-    labelme, labelme_sandwich, enum2dropdown, add_display_arg,
-    register_ipy_widget)
 from link_traits import link
+from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
+                                   IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
+
+from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
+        add_display_arg)
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
-from hyperspy.signal_tools import SPIKES_REMOVAL_INSTRUCTIONS
+from hyperspy_gui_ipywidgets.axes import get_ipy_navigation_sliders
 
 
-@register_ipy_widget(toolkey="interactive_range_selector")
 @add_display_arg
 def interactive_range_ipy(obj, **kwargs):
     # Define widgets
@@ -215,8 +215,141 @@ def calibrate_ipy(obj, **kwargs):
         "wdict": wdict,
     }
 
+@add_display_arg
+def print_edges_table_ipy(obj, **kwargs):
+    # Define widgets
+    wdict = {}
+    axis = obj.axis
+    style_d = {'description_width': 'initial'}
+    layout_d = {'width': '50%'}
+    left = ipywidgets.FloatText(disabled=True, layout={'width': '25%'})
+    right = ipywidgets.FloatText(disabled=True, layout={'width': '25%'})
+    units = ipywidgets.Label(style=style_d)
+    major = ipywidgets.Checkbox(value=False, description='Only major edge',
+                                indent=False, layout=layout_d)
+    complmt = ipywidgets.Checkbox(value=False, description='Complementary edge',
+                                 indent=False, layout=layout_d)
+    order = ipywidgets.Dropdown(options=['closest', 'ascending', 'descending'],
+                                value='closest',
+                                description='Sort energy by: ',
+                                disabled=False,
+                                style=style_d
+                                )
+    update = ipywidgets.Button(description='Refresh table', layout={'width': 'initial'})
+    gb = ipywidgets.GridBox(layout=ipywidgets.Layout(
+            grid_template_columns="70px 125px 75px 250px"))
+    help = ipywidgets.HTML(
+        "Click on the signal figure and drag to the right to select a signal "
+        "range. Drag the rectangle or change its border to display edges in "
+        "different signal range. Select edges to show their positions "
+        "on the signal.",)
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
+    help.set_title(0, "Help")
+    close = ipywidgets.Button(description="Close", tooltip="Close the widget.")
+    reset = ipywidgets.Button(description="Reset",
+                              tooltip="Reset the span selector.")
 
-@register_ipy_widget(toolkey="Signal1D.smooth_savitzky_golay")
+    header = ('<p style="padding-left: 1em; padding-right: 1em; '
+              'text-align: center; vertical-align: top; '
+              'font-weight:bold">{}</p>')
+    entry = ('<p style="padding-left: 1em; padding-right: 1em; '
+             'text-align: center; vertical-align: top">{}</p>')
+
+    wdict["left"] = left
+    wdict["right"] = right
+    wdict["units"] = units
+    wdict["help"] = help
+    wdict["major"] = major
+    wdict["update"] = update
+    wdict["complmt"] = complmt
+    wdict["order"] = order
+    wdict["gb"] = gb
+    wdict["reset"] = reset
+    wdict["close"] = close
+
+    # Connect
+    link((obj, "ss_left_value"), (left, "value"))
+    link((obj, "ss_right_value"), (right, "value"))
+    link((axis, "units"), (units, "value"))
+    link((obj, "only_major"), (major, "value"))
+    link((obj, "complementary"), (complmt, "value"))
+    link((obj, "order"), (order, "value"))
+
+    def update_table(change):
+        edges, energy, relevance, description = obj.update_table()
+
+        # header
+        items = [ipywidgets.HTML(header.format('edge')),
+                 ipywidgets.HTML(header.format('onset energy (eV)')),
+                 ipywidgets.HTML(header.format('relevance')),
+                 ipywidgets.HTML(header.format('description'))]
+
+        # rows
+        obj.btns = []
+        for k, edge in enumerate(edges):
+            if edge in obj.active_edges or \
+                edge in obj.active_complementary_edges:
+                btn_state = True
+            else:
+                btn_state = False
+
+            btn = ipywidgets.ToggleButton(value=btn_state,
+                                          description=edge,
+                                          layout=ipywidgets.Layout(width='70px'))
+            btn.observe(obj.update_active_edge,  names='value')
+            obj.btns.append(btn)
+
+            wenergy = ipywidgets.HTML(entry.format(str(energy[k])))
+            wrelv = ipywidgets.HTML(entry.format(str(relevance[k])))
+            wdes = ipywidgets.HTML(entry.format(str(description[k])))
+            items.extend([btn, wenergy, wrelv, wdes])
+
+        gb.children = items
+    update.on_click(update_table)
+    major.observe(update_table)
+
+    def on_complementary_toggled(change):
+        obj.update_table()
+        obj.check_btn_state()
+    complmt.observe(on_complementary_toggled)
+
+    def on_order_changed(change):
+        obj._get_edges_info_within_energy_axis()
+        update_table(change)
+    order.observe(on_order_changed)
+
+    def on_close_clicked(b):
+        obj.span_selector_switch(False)
+        box.close()
+    close.on_click(on_close_clicked)
+
+    def on_reset_clicked(b):
+        # ss_left_value is linked with left.value, this can prevent cyclic
+        # referencing
+        obj._clear_markers()
+        obj.span_selector_switch(False)
+        left.value = 0
+        right.value = 0
+        obj.span_selector_switch(True)
+        update_table(b)
+    reset.on_click(on_reset_clicked)
+
+    energy_box = ipywidgets.HBox([left, units, ipywidgets.Label("-"), right,
+                                   units])
+    check_box = ipywidgets.HBox([major, complmt])
+    control_box = ipywidgets.VBox([energy_box, update, order, check_box])
+
+    box = ipywidgets.VBox([
+        ipywidgets.HBox([gb, control_box]),
+        help,
+        ipywidgets.HBox([reset, close]),
+    ])
+
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
+
 @add_display_arg
 def smooth_savitzky_golay_ipy(obj, **kwargs):
     wdict = {}
@@ -274,7 +407,6 @@ def smooth_savitzky_golay_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_lowess")
 @add_display_arg
 def smooth_lowess_ipy(obj, **kwargs):
     wdict = {}
@@ -318,7 +450,6 @@ def smooth_lowess_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_total_variation")
 @add_display_arg
 def smooth_tv_ipy(obj, **kwargs):
     wdict = {}
@@ -363,7 +494,6 @@ def smooth_tv_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.smooth_butterworth")
 @add_display_arg
 def smooth_butterworth(obj, **kwargs):
     wdict = {}
@@ -406,38 +536,100 @@ def smooth_butterworth(obj, **kwargs):
         "wdict": wdict,
     }
 
-
-@register_ipy_widget(toolkey="Signal1D.contrast_editor")
 @add_display_arg
 def image_constast_editor_ipy(obj, **kwargs):
     wdict = {}
-    left = ipywidgets.FloatText(disabled=True)
-    right = ipywidgets.FloatText(disabled=True)
-    help = ipywidgets.HTML(
-        "Click on the histogram figure and drag to the right to select a"
-        "range. Press `Apply` to set the new contrast limits, `Reset` to reset "
-        "them or `Close` to cancel.",)
+    left = ipywidgets.FloatText(disabled=True, description="Vmin")
+    right = ipywidgets.FloatText(disabled=True, description="Vmax")
+    bins = ipywidgets.IntText(description="Bins")
+    norm = ipywidgets.Dropdown(options=("Linear", "Power", "Log", "Symlog"),
+                               description="Norm",
+                               value=obj.norm)
+    percentile = ipywidgets.FloatRangeSlider(value=[0.0, 100.0],
+                                             min=0.0, max=100.0, step=0.1,
+                                             description="Vmin/vmax percentile",
+                                             readout_format='.1f')
+    gamma = ipywidgets.FloatSlider(1.0, min=0.1, max=3.0, description="Gamma")
+    linthresh = ipywidgets.FloatSlider(0.01, min=0.001, max=1.0, step=0.001,
+                                       description="Linear threshold")
+    linscale = ipywidgets.FloatSlider(0.1, min=0.001, max=10.0, step=0.001,
+                                      description="Linear scale")
+    auto = ipywidgets.Checkbox(True, description="Auto")
+    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
     wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
-        tooltip="Close widget and remove span selector from the signal figure.")
+        tooltip="Close widget.")
     apply = ipywidgets.Button(
         description="Apply",
-        tooltip="Perform the operation using the selected range.")
+        tooltip="Use the selected range to re-calculate the histogram.")
     reset = ipywidgets.Button(
         description="Reset",
-        tooltip="Reset the contrast to the previous value.")
+        tooltip="Reset the settings to their initial values.")
     wdict["left"] = left
     wdict["right"] = right
+    wdict["bins"] = bins
+    wdict["norm"] = norm
+    wdict["percentile"] = percentile
+    wdict["gamma"] = gamma
+    wdict["linthresh"] = linthresh
+    wdict["linscale"] = linscale
+    wdict["auto"] = auto
     wdict["close_button"] = close
     wdict["apply_button"] = apply
     wdict["reset_button"] = reset
 
+    def transform_vmin(value):
+        return (value, percentile.upper)
+
+    def transform_vmin_inv(value):
+        return value[0]
+
+    def transform_vmax(value):
+        return (percentile.lower, value)
+
+    def transform_vmax_inv(value):
+        return value[1]
+
     # Connect
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "bins"), (bins, "value"))
+    link((obj, "norm"), (norm, "value"))
+    link((obj, "vmin_percentile"), (percentile, "value"),
+         (transform_vmin, transform_vmin_inv))
+    link((obj, "vmax_percentile"), (percentile, "value"),
+         (transform_vmax, transform_vmax_inv))
+    link((obj, "gamma"), (gamma, "value"))
+    link((obj, "linthresh"), (linthresh, "value"))
+    link((obj, "linscale"), (linscale, "value"))
+    link((obj, "auto"), (auto, "value"))
+
+    def display_parameters(change):
+        # Necessary for the initialisation
+        v = change if isinstance(change, str) else change.new
+        if v == "Symlog":
+            linthresh.layout.display = ""
+            linscale.layout.display = ""
+        else:
+            linthresh.layout.display = "none"
+            linscale.layout.display = "none"
+        if v == "Power":
+            gamma.layout.display = ""
+        else:
+            gamma.layout.display = "none"
+    display_parameters(obj.norm)
+    norm.observe(display_parameters, "value")
+
+    def disable_parameters(change):
+        # Necessary for the initialisation
+        v = change if isinstance(change, bool) else change.new
+        percentile.disabled = not v
+
+    disable_parameters(obj.auto)
+    auto.observe(disable_parameters, "value")
 
     def on_apply_clicked(b):
         obj.apply()
@@ -447,12 +639,18 @@ def image_constast_editor_ipy(obj, **kwargs):
         obj.reset()
     reset.on_click(on_reset_clicked)
 
-    box = ipywidgets.VBox([
-        labelme("vmin", left),
-        labelme("vmax", right),
-        help,
-        ipywidgets.HBox((apply, reset, close))
-    ])
+    box = ipywidgets.VBox([left,
+                           right,
+                           auto,
+                           percentile,
+                           bins,
+                           norm,
+                           gamma,
+                           linthresh,
+                           linscale,
+                           help,
+                           ipywidgets.HBox((apply, reset, close)),
+                           ])
 
     def on_close_clicked(b):
         obj.close()
@@ -464,23 +662,29 @@ def image_constast_editor_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.remove_background")
 @add_display_arg
 def remove_background_ipy(obj, **kwargs):
     wdict = {}
     left = ipywidgets.FloatText(disabled=True, description="Left")
     right = ipywidgets.FloatText(disabled=True, description="Right")
+    red_chisq = ipywidgets.FloatText(disabled=True, description="red-χ²")
     link((obj, "ss_left_value"), (left, "value"))
     link((obj, "ss_right_value"), (right, "value"))
+    link((obj, "red_chisq"), (red_chisq, "value"))
     fast = ipywidgets.Checkbox(description="Fast")
+    zero_fill = ipywidgets.Checkbox(description="Zero Fill")
     help = ipywidgets.HTML(
-        "Click on the signal figure and drag to the right to select a"
+        "Click on the signal figure and drag to the right to select a "
         "range. Press `Apply` to remove the background in the whole dataset. "
-        "If fast is checked, the background parameters are estimated using a "
-        "fast (analytical) method that can compromise accuray. When unchecked "
-        "non linear least squares is employed instead.",)
+        "If \"Fast\" is checked, the background parameters are estimated "
+        "using a fast (analytical) method that can compromise accuracy. "
+        "When unchecked, non-linear least squares is employed instead. "
+        "If \"Zero Fill\" is checked, all the channels prior to the fitting "
+        "region will be set to zero. "
+        "Otherwise the background subtraction will be performed in the "
+        "pre-fitting region as well.",)
     wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
     close = ipywidgets.Button(
         description="Close",
@@ -508,23 +712,28 @@ def remove_background_ipy(obj, **kwargs):
     enable_poly_order(change=Dummy())
     link((obj, "polynomial_order"), (polynomial_order, "value"))
     link((obj, "fast"), (fast, "value"))
+    link((obj, "zero_fill"), (zero_fill, "value"))
     wdict["left"] = left
     wdict["right"] = right
+    wdict["red_chisq"] = red_chisq
     wdict["fast"] = fast
+    wdict["zero_fill"] = zero_fill
     wdict["polynomial_order"] = polynomial_order
     wdict["background_type"] = background_type
     wdict["apply_button"] = apply
     box = ipywidgets.VBox([
-        left, right,
+        left, right, red_chisq,
         background_type,
         polynomial_order,
         fast,
+        zero_fill,
         help,
         ipywidgets.HBox((apply, close)),
     ])
 
     def on_apply_clicked(b):
         obj.apply()
+        obj.span_selector_switch(False)
         box.close()
     apply.on_click(on_apply_clicked)
 
@@ -538,7 +747,6 @@ def remove_background_ipy(obj, **kwargs):
     }
 
 
-@register_ipy_widget(toolkey="Signal1D.spikes_removal_tool")
 @add_display_arg
 def spikes_removal_ipy(obj, **kwargs):
     wdict = {}
@@ -550,7 +758,7 @@ def spikes_removal_ipy(obj, **kwargs):
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
     help = ipywidgets.HTML(
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
-    help = ipywidgets.Accordion(children=[help])
+    help = ipywidgets.Accordion(children=[help], selected_index=None)
     help.set_title(0, "Help")
 
     show_diff = ipywidgets.Button(
@@ -640,6 +848,224 @@ def spikes_removal_ipy(obj, **kwargs):
 
     def on_close_clicked(b):
         obj.span_selector_switch(False)
+        box.close()
+    close.on_click(on_close_clicked)
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
+
+
+@add_display_arg
+def find_peaks2D_ipy(obj, **kwargs):
+    wdict = {}
+    # Define widgets
+    # For "local max" method
+    local_max_distance = ipywidgets.IntSlider(min=1, max=20, value=3)
+    local_max_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    # For "max" method
+    max_alpha = ipywidgets.FloatSlider(min=0, max=6, value=3)
+    max_distance = ipywidgets.IntSlider(min=1, max=20, value=10)
+    # For "minmax" method
+    minmax_distance = ipywidgets.FloatSlider(min=0, max=6, value=3)
+    minmax_threshold = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    # For "Zaefferer" method
+    zaefferer_grad_threshold = ipywidgets.FloatSlider(min=0, max=0.2,
+                                                      value=0.1, step=0.2*1E-1)
+    zaefferer_window_size = ipywidgets.IntSlider(min=2, max=80, value=40)
+    zaefferer_distance_cutoff = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    # For "stat" method
+    stat_alpha = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    stat_window_radius = ipywidgets.IntSlider(min=5, max=20, value=10)
+    stat_convergence_ratio = ipywidgets.FloatSlider(min=0, max=0.1, value=0.05)
+    # For "Laplacian of Gaussians" method
+    log_min_sigma = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    log_max_sigma = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    log_num_sigma = ipywidgets.FloatSlider(min=0, max=20, value=10)
+    log_threshold = ipywidgets.FloatSlider(min=0, max=0.4, value=0.2)
+    log_overlap = ipywidgets.FloatSlider(min=0, max=1, value=0.5)
+    log_log_scale = ipywidgets.Checkbox()
+    # For "Difference of Gaussians" method
+    dog_min_sigma = ipywidgets.FloatSlider(min=0, max=2, value=1)
+    dog_max_sigma = ipywidgets.FloatSlider(min=0, max=100, value=50)
+    dog_sigma_ratio = ipywidgets.FloatSlider(min=0, max=3.2, value=1.6)
+    dog_threshold = ipywidgets.FloatSlider(min=0, max=0.4, value=0.2)
+    dog_overlap = ipywidgets.FloatSlider(min=0, max=1, value=0.5)
+    # For "Cross correlation" method
+    xc_distance = ipywidgets.FloatSlider(min=0, max=10., value=5.)
+    xc_threshold = ipywidgets.FloatSlider(min=0, max=2., value=0.5)
+
+    wdict["local_max_distance"] = local_max_distance
+    wdict["local_max_threshold"] = local_max_threshold
+    wdict["max_alpha"] = max_alpha
+    wdict["max_distance"] = max_distance
+    wdict["minmax_distance"] = minmax_distance
+    wdict["minmax_threshold"] = minmax_threshold
+    wdict["zaefferer_grad_threshold"] = zaefferer_grad_threshold
+    wdict["zaefferer_window_size"] = zaefferer_window_size
+    wdict["zaefferer_distance_cutoff"] = zaefferer_distance_cutoff
+    wdict["stat_alpha"] = stat_alpha
+    wdict["stat_window_radius"] = stat_window_radius
+    wdict["stat_convergence_ratio"] = stat_convergence_ratio
+    wdict["log_min_sigma"] = log_min_sigma
+    wdict["log_max_sigma"] = log_max_sigma
+    wdict["log_num_sigma"] = log_num_sigma
+    wdict["log_threshold"] = log_threshold
+    wdict["log_overlap"] = log_overlap
+    wdict["log_log_scale"] = log_log_scale
+    wdict["dog_min_sigma"] = dog_min_sigma
+    wdict["dog_max_sigma"] = dog_max_sigma
+    wdict["dog_sigma_ratio"] = dog_sigma_ratio
+    wdict["dog_threshold"] = dog_threshold
+    wdict["dog_overlap"] = dog_overlap
+    wdict["xc_distance"] = xc_distance
+    wdict["xc_threshold"] = xc_threshold
+
+    # Connect
+    link((obj, "local_max_distance"), (local_max_distance, "value"))
+    link((obj, "local_max_threshold"), (local_max_threshold, "value"))
+    link((obj, "max_alpha"), (max_alpha, "value"))
+    link((obj, "max_distance"), (max_distance, "value"))
+    link((obj, "minmax_distance"), (minmax_distance, "value"))
+    link((obj, "minmax_threshold"), (minmax_threshold, "value"))
+    link((obj, "zaefferer_grad_threshold"), (zaefferer_grad_threshold, "value"))
+    link((obj, "zaefferer_window_size"), (zaefferer_window_size, "value"))
+    link((obj, "zaefferer_distance_cutoff"), (zaefferer_distance_cutoff, "value"))
+    link((obj, "stat_alpha"), (stat_alpha, "value"))
+    link((obj, "stat_window_radius"), (stat_window_radius, "value"))
+    link((obj, "stat_convergence_ratio"), (stat_convergence_ratio, "value"))
+    link((obj, "log_min_sigma"), (log_min_sigma, "value"))
+    link((obj, "log_max_sigma"), (log_max_sigma, "value"))
+    link((obj, "log_num_sigma"), (log_num_sigma, "value"))
+    link((obj, "log_threshold"), (log_threshold, "value"))
+    link((obj, "log_overlap"), (log_overlap, "value"))
+    link((obj, "log_log_scale"), (log_log_scale, "value"))
+    link((obj, "dog_min_sigma"), (dog_min_sigma, "value"))
+    link((obj, "dog_max_sigma"), (dog_max_sigma, "value"))
+    link((obj, "dog_sigma_ratio"), (dog_sigma_ratio, "value"))
+    link((obj, "dog_threshold"), (dog_threshold, "value"))
+    link((obj, "dog_overlap"), (dog_overlap, "value"))
+    link((obj, "xc_distance"), (xc_distance, "value"))
+    link((obj, "xc_threshold"), (xc_threshold, "value"))
+
+    close = ipywidgets.Button(
+        description="Close",
+        tooltip="Close widget and close figure.")
+    compute = ipywidgets.Button(
+        description="Compute over navigation axes.",
+        tooltip="Find the peaks by iterating over the navigation axes.")
+
+    box_local_max = ipywidgets.VBox([
+            labelme("Distance", local_max_distance),
+            labelme("Threshold", local_max_threshold),
+            ])
+    box_max = ipywidgets.VBox([#max_alpha, max_distance
+            labelme("Alpha", max_alpha),
+            labelme("Distance", max_distance),
+            ])
+    box_minmax = ipywidgets.VBox([
+            labelme("Distance", minmax_distance),
+            labelme("Threshold", minmax_threshold),
+            ])
+    box_zaefferer = ipywidgets.VBox([
+            labelme("Gradient threshold", zaefferer_grad_threshold),
+            labelme("Window size", zaefferer_window_size),
+            labelme("Distance cutoff", zaefferer_distance_cutoff),
+            ])
+    box_stat = ipywidgets.VBox([
+            labelme("Alpha", stat_alpha),
+            labelme("Radius", stat_window_radius),
+            labelme("Convergence ratio", stat_convergence_ratio),
+            ])
+    box_log = ipywidgets.VBox([
+            labelme("Min sigma", log_min_sigma),
+            labelme("Max sigma",  log_max_sigma),
+            labelme("Num sigma", log_num_sigma),
+            labelme("Threshold", log_threshold),
+            labelme("Overlap", log_overlap),
+            labelme("Log scale", log_log_scale),
+            ])
+    box_dog = ipywidgets.VBox([
+            labelme("Min sigma", dog_min_sigma),
+            labelme("Max sigma", dog_max_sigma),
+            labelme("Sigma ratio", dog_sigma_ratio),
+            labelme("Threshold", dog_threshold),
+            labelme("Overlap", dog_overlap),
+            ])
+    box_xc = ipywidgets.VBox([
+            labelme("Distance", xc_distance),
+            labelme("Threshold", xc_threshold),
+            ])
+
+    box_dict = {"Local Max": box_local_max,
+                "Max": box_max,
+                "Minmax": box_minmax,
+                "Zaefferer": box_zaefferer,
+                "Stat": box_stat,
+                "Laplacian of Gaussians": box_log,
+                "Difference of Gaussians": box_dog,
+                "Template matching": box_xc}
+
+    method = enum2dropdown(obj.traits()["method"])
+    def update_method_parameters(change):
+        # Remove all parameters vbox widgets
+        for item, value in box_dict.items():
+            value.layout.display = "none"
+        if change.new == "Local max":
+            box_local_max.layout.display = ""
+        elif change.new == "Max":
+            box_max.layout.display = ""
+        elif change.new == "Minmax":
+            box_minmax.layout.display = ""
+        elif change.new == "Zaefferer":
+            box_zaefferer.layout.display = ""
+        elif change.new == "Stat":
+            box_stat.layout.display = ""
+        elif change.new == "Laplacian of Gaussians":
+            box_log.layout.display = ""
+        elif change.new == "Difference of Gaussians":
+            box_dog.layout.display = ""
+        elif change.new == "Template matching":
+            box_xc.layout.display = ""
+
+    method.observe(update_method_parameters, "value")
+    link((obj, "method"), (method, "value"))
+
+    # Trigger the function that controls the visibility  as
+    # setting the default value doesn't trigger it.
+    class Dummy:
+        new = method.value
+    update_method_parameters(change=Dummy())
+
+    widgets_list = []
+
+    if obj.show_navigation_sliders:
+        nav_widget = get_ipy_navigation_sliders(
+                obj.signal.axes_manager.navigation_axes,
+                in_accordion=True,
+                random_position_button=True)
+        widgets_list.append(nav_widget['widget'])
+        wdict.update(nav_widget['wdict'])
+
+    l = [labelme("Method", method)]
+    l.extend([value for item, value in box_dict.items()])
+    method_parameters = ipywidgets.Accordion((ipywidgets.VBox(l), ))
+    method_parameters.set_title(0, "Method parameters")
+
+    widgets_list.extend([method_parameters,
+                         ipywidgets.HBox([compute, close])])
+    box = ipywidgets.VBox(widgets_list)
+
+    def on_compute_clicked(b):
+        obj.compute_navigation()
+        obj.signal._plot.close()
+        obj.close()
+        box.close()
+    compute.on_click(on_compute_clicked)
+
+    def on_close_clicked(b):
+        obj.signal._plot.close()
+        obj.close()
         box.close()
     close.on_click(on_close_clicked)
     return {

@@ -1,45 +1,42 @@
-import traitlets
-import traits.api as t
 import traits
 import ipywidgets
 
 from link_traits import link
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, register_ipy_widget, add_display_arg, float2floattext, get_label)
+    labelme, add_display_arg, float2floattext, get_label, str2text)
 
 
 def bool2checkbox(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Checkbox(
-        tooltip=tooltip,
+        description_tooltip=description_tooltip,
     )
     return labelme(widget=widget, label=label)
 
 
 def directory2unicode(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Text(
-        tooltip=tooltip,)
+        description_tooltip=description_tooltip,)
     return labelme(widget=widget, label=label)
 
 
 def enum2dropdown(trait, label):
-    tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.Dropdown(
-        options=trait.trait_type.values,
-        tooltip=tooltip,)
+        options=trait.trait_type.values)
     return labelme(widget=widget, label=label)
 
 
 def range2floatrangeslider(trait, label):
-    tooltip = trait.desc if trait.desc else ""
+    description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatSlider(
         min=trait.trait_type._low,
         max=trait.trait_type._high,
-        tooltip=tooltip,)
+        description_tooltip=description_tooltip,)
     return labelme(widget=widget, label=label)
 
 
+# Trait types must be converted to the appropriate ipywidget
 TRAITS2IPYWIDGETS = {
     traits.trait_types.CBool: bool2checkbox,
     traits.trait_types.Bool: bool2checkbox,
@@ -47,10 +44,10 @@ TRAITS2IPYWIDGETS = {
     traits.trait_types.Directory: directory2unicode,
     traits.trait_types.Range: range2floatrangeslider,
     traits.trait_types.Enum: enum2dropdown,
+    traits.trait_types.Str: str2text,
 }
 
 
-@register_ipy_widget(toolkey="Preferences")
 @add_display_arg
 def show_preferences_widget(obj, **kwargs):
     ipytabs = {}
@@ -69,10 +66,10 @@ def show_preferences_widget(obj, **kwargs):
             link((getattr(obj, tab), trait_name),
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
-    titles = ["General", "GUIs", "EELS", "EDS"]
+    # This defines the order of the tab in the widget
+    titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
-        children=[ipytabs[title.replace(" ", "")] for title in titles],
-        titles=titles)
+        children=[ipytabs[title] for title in titles])
     for i, title in enumerate(titles):
         ipytabs_.set_title(i, title)
     save_button = ipywidgets.Button(

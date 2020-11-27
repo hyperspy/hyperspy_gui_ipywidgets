@@ -1,17 +1,16 @@
 import numpy as np
-import numpy.testing
-import numpy.random
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy.signal_tools import Signal1DCalibration
-from hyperspy.signal_tools import ImageContrastEditor
+from hyperspy.signal_tools import (Signal1DCalibration, ImageContrastEditor,
+                                   EdgesRange)
 
 
 class TestTools:
 
     def setup_method(self, method):
         self.s = hs.signals.Signal1D(1 + np.arange(100)**2)
+        self.s.change_dtype('float')
         self.s.axes_manager[0].offset = 10
         self.s.axes_manager[0].scale = 2
         self.s.axes_manager[0].units = "m"
@@ -105,17 +104,20 @@ class TestTools:
             signal_range=(15., 50.),
             background_type='Polynomial',
             polynomial_order=2,
-            fast=False,)
+            fast=False,
+            zero_fill=True)
         wd = s.remove_background(**KWARGS)["ipywidgets"]["wdict"]
         assert wd["polynomial_order"].layout.display == "none"  # not visible
         wd["background_type"].value = "Polynomial"
         assert wd["polynomial_order"].layout.display == ""  # visible
         wd["polynomial_order"].value = 2
         wd["fast"].value = False
+        wd["zero_fill"] = True
         wd["left"].value = 15.
         wd["right"].value = 50.
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
-        np.testing.assert_allclose(s.data, s2.data)
+        np.testing.assert_allclose(s.data[2:], s2.data[2:])
+        np.testing.assert_allclose(np.zeros(2), s2.data[:2])
 
     def test_spikes_removal_tool(self):
         s = hs.signals.Signal1D(np.ones((2, 3, 30)))
@@ -160,17 +162,92 @@ class TestTools:
         assert s.axes_manager.indices == (0, 0)
 
     def test_constrast_editor(self):
+        # To get this test to work, matplotlib backend needs to set to 'Agg'
+        np.random.seed(1)
         im = hs.signals.Signal2D(np.random.random((32, 32)))
         im.plot()
-        wd = im._plot.signal_plot.gui_adjust_contrast(
-            **KWARGS)["ipywidgets"]["wdict"]
-        vmax = im._plot.signal_plot.vmax
-        vmin = im._plot.signal_plot.vmin
+        ceditor = ImageContrastEditor(im._plot.signal_plot)
+        ceditor.ax.figure.canvas.draw_idle()
+        wd = ceditor.gui(**KWARGS)["ipywidgets"]["wdict"]
+        assert wd["linthresh"].layout.display == "none"  # not visible
+        assert wd["linscale"].layout.display == "none"  # not visible
+        assert wd["gamma"].layout.display == "none"  # not visible
+        wd["bins"].value = 50
+        assert ceditor.bins == 50
+        wd["norm"].value = 'Log'
+        assert ceditor.norm == 'Log'
+        assert wd["linthresh"].layout.display == "none"  # not visible
+        assert wd["linscale"].layout.display == "none"  # not visible
+        wd["norm"].value = 'Symlog'
+        assert ceditor.norm == 'Symlog'
+        assert wd["linthresh"].layout.display == ""  # visible
+        assert wd["linscale"].layout.display == ""  # visible
+        assert wd["linthresh"].value == 0.01 # default value
+        assert wd["linscale"].value == 0.1 # default value
+
+        wd["linthresh"].value = 0.1
+        assert ceditor.linthresh == 0.1
+        wd["linscale"].value = 0.2
+        assert ceditor.linscale == 0.2
+
+
+        wd["norm"].value = 'Linear'
+        percentile = [1.0, 99.0]
+        wd["percentile"].value = percentile
+        assert ceditor.vmin_percentile == percentile[0]
+        assert ceditor.vmax_percentile == percentile[1]
+        assert im._plot.signal_plot.vmin == f'{percentile[0]}th'
+        assert im._plot.signal_plot.vmax == f'{percentile[1]}th'
+
+        wd["norm"].value = 'Power'
+        assert ceditor.norm == 'Power'
+        assert wd["gamma"].layout.display == ""  # visible
+        assert wd["gamma"].value == 1.0 # default value
+        wd["gamma"].value = 0.1
+        assert ceditor.gamma == 0.1
+
+        assert wd["auto"].value is True # default value
+        wd["auto"].value = False
+        assert ceditor.auto is False
+
         wd["left"].value = 0.2
+        assert ceditor.ss_left_value == 0.2
         wd["right"].value = 0.5
+        assert ceditor.ss_right_value == 0.5
+        # Setting the span selector programmatically from the widgets will
+        # need to be implemented properly
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
-        assert im._plot.signal_plot.vmin == 0.2
-        assert im._plot.signal_plot.vmax == 0.5
+        # assert im._plot.signal_plot.vmin == 0.2
+        # assert im._plot.signal_plot.vmax == 0.5
+
+        # Reset to default values
         wd["reset_button"]._click_handlers(wd["reset_button"])    # Trigger it
-        assert im._plot.signal_plot.vmin == vmin
-        assert im._plot.signal_plot.vmax == vmax
+        assert im._plot.signal_plot.vmin == '0.0th'
+        assert im._plot.signal_plot.vmax == '100.0th'
+
+    def test_eels_table_tool(self):
+        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        s.plot()
+        er = EdgesRange(s)
+
+        er.ss_left_value = 500
+        er.ss_right_value = 550
+
+        wd = er.gui(**KWARGS)["ipywidgets"]["wdict"]
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd["units"].value == 'eV'
+        assert wd["left"].value == 500
+        assert wd["right"].value == 550
+        assert len(wd['gb'].children) == 36 # 9 edges displayed
+
+        wd['major'].value = True
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert len(wd['gb'].children) == 24 # 6 edges displayed
+        assert wd['gb'].children[4].description == 'Sb_M4'
+
+        wd['order'].value = 'ascending'
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd['gb'].children[4].description == 'V_L3'
+
+        wd["reset"]._click_handlers(wd["reset"])  # reset the selector
+        assert len(wd['gb'].children) == 4 # only header displayed
