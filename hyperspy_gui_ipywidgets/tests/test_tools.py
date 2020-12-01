@@ -2,7 +2,8 @@ import numpy as np
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy.signal_tools import Signal1DCalibration, ImageContrastEditor
+from hyperspy.signal_tools import (Signal1DCalibration, ImageContrastEditor,
+                                   EdgesRange)
 
 
 class TestTools:
@@ -167,9 +168,7 @@ class TestTools:
         im.plot()
         ceditor = ImageContrastEditor(im._plot.signal_plot)
         ceditor.ax.figure.canvas.draw_idle()
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
         wd = ceditor.gui(**KWARGS)["ipywidgets"]["wdict"]
-        assert ceditor.saturated_pixels == 0.05
         assert wd["linthresh"].layout.display == "none"  # not visible
         assert wd["linscale"].layout.display == "none"  # not visible
         assert wd["gamma"].layout.display == "none"  # not visible
@@ -193,9 +192,12 @@ class TestTools:
 
 
         wd["norm"].value = 'Linear'
-        wd["saturated_pixels"].value = 0.5
-        assert ceditor.saturated_pixels == 0.5
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 29.5263052E-4)
+        percentile = [1.0, 99.0]
+        wd["percentile"].value = percentile
+        assert ceditor.vmin_percentile == percentile[0]
+        assert ceditor.vmax_percentile == percentile[1]
+        assert im._plot.signal_plot.vmin == f'{percentile[0]}th'
+        assert im._plot.signal_plot.vmax == f'{percentile[1]}th'
 
         wd["norm"].value = 'Power'
         assert ceditor.norm == 'Power'
@@ -208,8 +210,6 @@ class TestTools:
         wd["auto"].value = False
         assert ceditor.auto is False
 
-        vmax = im._plot.signal_plot.vmax
-        vmin = im._plot.signal_plot.vmin
         wd["left"].value = 0.2
         assert ceditor.ss_left_value == 0.2
         wd["right"].value = 0.5
@@ -222,7 +222,32 @@ class TestTools:
 
         # Reset to default values
         wd["reset_button"]._click_handlers(wd["reset_button"])    # Trigger it
-        assert ceditor.saturated_pixels == 0.05
-        assert wd["saturated_pixels"].value == 0.05
-        np.testing.assert_allclose(im._plot.signal_plot.vmin, 1.8794132E-4)
-        np.testing.assert_allclose(im._plot.signal_plot.vmax, 0.9971772199)
+        assert im._plot.signal_plot.vmin == '0.0th'
+        assert im._plot.signal_plot.vmax == '100.0th'
+
+    def test_eels_table_tool(self):
+        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        s.plot()
+        er = EdgesRange(s)
+
+        er.ss_left_value = 500
+        er.ss_right_value = 550
+
+        wd = er.gui(**KWARGS)["ipywidgets"]["wdict"]
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd["units"].value == 'eV'
+        assert wd["left"].value == 500
+        assert wd["right"].value == 550
+        assert len(wd['gb'].children) == 36 # 9 edges displayed
+
+        wd['major'].value = True
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert len(wd['gb'].children) == 24 # 6 edges displayed
+        assert wd['gb'].children[4].description == 'Sb_M4'
+
+        wd['order'].value = 'ascending'
+        wd["update"]._click_handlers(wd["update"])  # refresh the table
+        assert wd['gb'].children[4].description == 'V_L3'
+
+        wd["reset"]._click_handlers(wd["reset"])  # reset the selector
+        assert len(wd['gb'].children) == 4 # only header displayed
