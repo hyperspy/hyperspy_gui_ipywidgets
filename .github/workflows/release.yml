@@ -1,7 +1,9 @@
 name: Release
 # This workflow builds the wheels "on tag".
-# If run from the hyperspy/hyperspy repository, the wheels will be uploaded to pypi ;
-# otherwise, the wheels will be available as a github artifact.
+# If run from the hyperspy/hyperspy_gui_ipywidgets repository, the wheels will be
+# uploaded to pypi; otherwise, the wheels will be available as a github artifact.
+# This workflow overwrite the version in `hyperspy_gui_ipywidgets/version.py`
+# with the tag
 on:
   push:
     # Sequence of patterns matched against refs/tags
@@ -14,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs: 
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+      VERSION: ${{ env.VERSION }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,6 +30,10 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+      - name: Get version (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
 
   build_wheels_linux:
     name: Wheels on ubuntu-latest
@@ -43,6 +50,14 @@ jobs:
       - name: Install release dependencies
         run: |
           python -m pip install twine wheel
+
+      - name: Overwrite `version.py` with tag
+        if: startsWith(github.ref, 'refs/tags/')
+        env: 
+          version_file: hyperspy_gui_ipywidgets/version.py
+          VERSION: ${{ needs.create_release.outputs.VERSION }}
+        run: |
+          echo '__version__ = "${{ env.VERSION }}"' > ${{ env.version_file }}
 
       - name: Build source distribution
         run: |
@@ -62,8 +77,8 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: |
-            ./sdist/*.whl
-            ./sdist/*.tar.gz
+            ./dist/*.whl
+            ./dist/*.tar.gz
 
       - name: Publish wheels to PyPI
         if: github.repository_owner == 'hyperspy'
@@ -74,6 +89,6 @@ jobs:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
-          twine upload sdist/*.whl --verbose 
-          twine upload sdist/*.tar.gz --verbose 
+          twine upload dist/*.whl --verbose 
+          twine upload dist/*.tar.gz --verbose 
 
