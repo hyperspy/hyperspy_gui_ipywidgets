@@ -1,7 +1,8 @@
 # hyperspy_gui_ipywidgets
-[![Build Status](https://travis-ci.org/hyperspy/hyperspy_gui_ipywidgets.svg?branch=master)](https://travis-ci.org/hyperspy/hyperspy_gui_ipywidgets)
-![PyPI](https://img.shields.io/pypi/v/hyperspy_gui_ipywidgets.svg)
+![Tests](https://github.com/hyperspy/hyperspy_gui_ipywidgets/workflows/Tests/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hyperspy_gui_ipywidgets.svg)
+![PyPI](https://img.shields.io/pypi/v/hyperspy_gui_ipywidgets.svg)
+[![Anaconda Cloud](https://anaconda.org/conda-forge/hyperspy-gui-ipywidgets/badges/version.svg)](https://anaconda.org/conda-forge/hyperspy-gui-ipywidgets)
 
 
 **hyperspy_gui_ipywidgets** provides ipywidgets graphic user interface (GUI) elements for hyperspy.
