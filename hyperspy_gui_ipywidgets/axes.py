@@ -114,7 +114,7 @@ def _get_axis_widgets(obj):
         link((obj, "value"), (value, "value"))
         link((obj, "high_value"), (value, "max"))
         link((obj, "low_value"), (value, "min"))
-        link((obj, "scale"), (value, "step"))
+        #link((obj, "scale"), (value, "step"))
 
     units = ipywidgets.Text()
     widgets.append(labelme("Units", units))
