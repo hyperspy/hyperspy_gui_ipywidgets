@@ -138,6 +138,21 @@ def _get_axis_widgets(obj):
         widgets.append(labelme("Expression", expression))
         link((obj, "_expression"), (expression, "value"))
         wd["expression"] = expression
+        for i in range(len(obj.parameters_list)):
+            parameter = ipywidgets.FloatText()
+            widgets.append(labelme(obj.parameters_list[i], parameter))
+            link((obj, obj.parameters_list[i]), (parameter, "value"))
+            wd["parameter"] = parameter
+        if hasattr(obj.x, 'scale'):
+            scale = ipywidgets.FloatText()
+            widgets.append(labelme("x scale", scale))
+            link((obj.x, "scale"), (scale, "value"))
+            wd["scale"] = scale
+        if hasattr(obj.x, "offset"):
+            offset = ipywidgets.FloatText()
+            widgets.append(labelme("x offset", offset))
+            link((obj.x, "offset"), (offset, "value"))
+            wd["offset"] = offset
 
     return {
         "widget": ipywidgets.VBox(widgets),
