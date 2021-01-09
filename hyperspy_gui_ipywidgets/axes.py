@@ -31,19 +31,29 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
         link((continuous_update, "value"),
              (iwidget, "continuous_update"))
         link((axis, "index"), (iwidget, "value"))
-        vwidget = ipywidgets.BoundedFloatText(
-            min=axis.low_value,
-            max=axis.high_value,
-            step=axis.scale,
-            description="value"
-            # readout_format=".lf"
-        )
+        if hasattr(axis, "scale"):
+            vwidget = ipywidgets.BoundedFloatText(
+                min=axis.low_value,
+                max=axis.high_value,
+                step=axis.scale,
+                description="value"
+                # readout_format=".lf"
+            )
+        else:
+            vwidget = ipywidgets.BoundedFloatText(
+                min=0,
+                max=axis.size - 1,
+                #step=1,
+                disabled=True,
+                description="value"
+            )
         link((continuous_update, "value"),
              (vwidget, "continuous_update"))
         link((axis, "value"), (vwidget, "value"))
         link((axis, "high_value"), (vwidget, "max"))
         link((axis, "low_value"), (vwidget, "min"))
-        link((axis, "scale"), (vwidget, "step"))
+        if hasattr(axis, "scale"):
+            link((axis, "scale"), (vwidget, "step"))
         name = ipywidgets.Label(str(axis),
                                 layout=ipywidgets.Layout(width="15%"))
         units = ipywidgets.Label(layout=ipywidgets.Layout(width="5%"))
