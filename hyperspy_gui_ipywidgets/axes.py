@@ -31,19 +31,29 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
         link((continuous_update, "value"),
              (iwidget, "continuous_update"))
         link((axis, "index"), (iwidget, "value"))
-        vwidget = ipywidgets.BoundedFloatText(
-            min=axis.low_value,
-            max=axis.high_value,
-            step=axis.scale,
-            description="value"
-            # readout_format=".lf"
-        )
+        if hasattr(axis, "scale"):
+            vwidget = ipywidgets.BoundedFloatText(
+                min=axis.low_value,
+                max=axis.high_value,
+                step=axis.scale,
+                description="value"
+                # readout_format=".lf"
+            )
+        else:
+            vwidget = ipywidgets.BoundedFloatText(
+                min=0,
+                max=axis.size - 1,
+                #step=1,
+                disabled=True,
+                description="value"
+            )
         link((continuous_update, "value"),
              (vwidget, "continuous_update"))
         link((axis, "value"), (vwidget, "value"))
         link((axis, "high_value"), (vwidget, "max"))
         link((axis, "low_value"), (vwidget, "min"))
-        link((axis, "scale"), (vwidget, "step"))
+        if hasattr(axis, "scale"):
+            link((axis, "scale"), (vwidget, "step"))
         name = ipywidgets.Label(str(axis),
                                 layout=ipywidgets.Layout(width="15%"))
         units = ipywidgets.Label(layout=ipywidgets.Layout(width="5%"))
@@ -114,7 +124,8 @@ def _get_axis_widgets(obj):
         link((obj, "value"), (value, "value"))
         link((obj, "high_value"), (value, "max"))
         link((obj, "low_value"), (value, "min"))
-        link((obj, "scale"), (value, "step"))
+        if hasattr(obj, "scale"):
+            link((obj, "scale"), (value, "step"))
 
     units = ipywidgets.Text()
     widgets.append(labelme("Units", units))
@@ -138,6 +149,21 @@ def _get_axis_widgets(obj):
         widgets.append(labelme("Expression", expression))
         link((obj, "_expression"), (expression, "value"))
         wd["expression"] = expression
+        for i in range(len(obj.parameters_list)):
+            parameter = ipywidgets.FloatText()
+            widgets.append(labelme(obj.parameters_list[i], parameter))
+            link((obj, obj.parameters_list[i]), (parameter, "value"))
+            wd["parameter"] = parameter
+        if hasattr(obj.x, 'scale'):
+            scale = ipywidgets.FloatText()
+            widgets.append(labelme("x scale", scale))
+            link((obj.x, "scale"), (scale, "value"))
+            wd["scale"] = scale
+        if hasattr(obj.x, "offset"):
+            offset = ipywidgets.FloatText()
+            widgets.append(labelme("x offset", offset))
+            link((obj.x, "offset"), (offset, "value"))
+            wd["offset"] = offset
 
     return {
         "widget": ipywidgets.VBox(widgets),
