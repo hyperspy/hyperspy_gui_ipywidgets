@@ -6,7 +6,8 @@ import numpy as np
 
 from link_traits import link, dlink
 from hyperspy_gui_ipywidgets.utils import (
-    add_display_arg, labelme)
+    add_display_arg, labelme, set_title_container
+    )
 
 
 def _interactive_slider_bounds(obj, index=None):
@@ -135,7 +136,7 @@ def get_parameter_widget(obj, **kwargs):
         update.on_click(on_update_clicked)
         wdict["update_button"] = update
         container = Accordion([VBox([update] + par_widgets)])
-        container.set_title(0, obj.name)
+        set_title_container(container, obj.name)
 
     return {
         "widget": container,
@@ -180,8 +181,7 @@ def get_model_widget(obj, **kwargs):
         children.append(idict["widget"])
         wdict["component_{}".format(component.name)] = idict["wdict"]
     accordion = Accordion(children=children)
-    for i, comp in enumerate(obj):
-        accordion.set_title(i, comp.name)
+    set_title_container(accordion, [comp.name for comp in obj])
     return {
         "widget": accordion,
         "wdict": wdict
@@ -243,14 +243,16 @@ def fit_component_ipy(obj, **kwargs):
     wdict = {}
     only_current = Checkbox()
     wdict["only_current"] = only_current
-    help = HTML(
+    help_text = HTML(
         "Click on the signal figure and drag to the right to select a"
         "range. Press `Fit` to fit the component in that range. If only "
         "current is unchecked the fit is performed in the whole dataset.",
         layout=ipywidgets.Layout(width="auto"))
-    wdict["help"] = only_current
-    help = Accordion(children=[help])
-    help.set_title(0, "Help")
+    wdict["help_text"] = help_text
+
+    help = Accordion(children=[help_text])
+    set_title_container(help, "Help")
+
     link((obj, "only_current"), (only_current, "value"))
     fit = Button(
         description="Fit",
