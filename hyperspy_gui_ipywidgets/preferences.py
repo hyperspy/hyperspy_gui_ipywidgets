@@ -10,16 +10,15 @@ from hyperspy_gui_ipywidgets.utils import (
 
 def bool2checkbox(trait, label):
     description_tooltip = trait.desc if trait.desc else ""
-    widget = ipywidgets.Checkbox(
-        description_tooltip=description_tooltip,
-    )
+    widget = ipywidgets.Checkbox()
+    widget.description_tooltip = description_tooltip
     return labelme(widget=widget, label=label)
 
 
 def directory2unicode(trait, label):
     description_tooltip = trait.desc if trait.desc else ""
-    widget = ipywidgets.Text(
-        description_tooltip=description_tooltip,)
+    widget = ipywidgets.Text()
+    widget.description_tooltip = description_tooltip
     return labelme(widget=widget, label=label)
 
 
