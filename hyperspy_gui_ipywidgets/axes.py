@@ -2,7 +2,8 @@ import ipywidgets
 import numpy as np
 
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, add_display_arg)
+    labelme, add_display_arg, set_title_container
+    )
 from link_traits import link
 
 
@@ -76,7 +77,7 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
         def _random_navigation_position_fired(b):
             am = obj[0].axes_manager
             index = np.random.randint(0, am._max_index)
-            am.indices = np.unravel_index(index, 
+            am.indices = np.unravel_index(index,
                 tuple(am._navigation_shape_in_array))[::-1]
         random_nav_position.on_click(_random_navigation_position_fired)
 
@@ -87,7 +88,7 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
     box = ipywidgets.VBox(widgets)
     if in_accordion:
         box = ipywidgets.Accordion((box,))
-        box.set_title(0, "Navigation sliders")
+        set_title_container(box, ["Navigation sliders"])
     return {"widget": box, "wdict": wdict}
 
 
@@ -143,7 +144,7 @@ def _get_axis_widgets(obj):
         widgets.append(labelme("Offset", offset))
         link((obj, "offset"), (offset, "value"))
         wd["offset"] = offset
-        
+
     if "_expression" in obj.__dict__.keys():
         expression = ipywidgets.Text(disabled=True)
         widgets.append(labelme("Expression", expression))
@@ -188,11 +189,12 @@ def ipy_axes_gui(obj, **kwargs):
         wdict["axis{}".format(i + j)] = wd["wdict"]
     nav_accordion = ipywidgets.Accordion(nav_widgets)
     sig_accordion = ipywidgets.Accordion(sig_widgets)
-    i = 0  # For when there is not navigation axes
-    for i in range(obj.navigation_dimension):
-        nav_accordion.set_title(i, "Axis %i" % i)
-    for j in range(obj.signal_dimension):
-        sig_accordion.set_title(j, "Axis %i" % (i + j + 1))
+    nav_titles = [f"Axis {i}" for i in range(obj.navigation_dimension)]
+    set_title_container(nav_accordion, nav_titles)
+    sig_titles = [f"Axis {j+obj.navigation_dimension+1}" for j in
+                  range(obj.signal_dimension)]
+    set_title_container(sig_accordion, sig_titles)
+
     tabs = ipywidgets.HBox([nav_accordion, sig_accordion])
     return {
         "widget": tabs,

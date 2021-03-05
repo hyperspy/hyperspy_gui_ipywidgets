@@ -3,7 +3,9 @@ import ipywidgets
 
 from link_traits import link
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, add_display_arg, float2floattext, get_label, str2text)
+    labelme, add_display_arg, float2floattext, get_label, str2text,
+    set_title_container
+    )
 
 
 def bool2checkbox(trait, label):
@@ -70,8 +72,7 @@ def show_preferences_widget(obj, **kwargs):
     titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
         children=[ipytabs[title] for title in titles])
-    for i, title in enumerate(titles):
-        ipytabs_.set_title(i, title)
+    set_title_container(ipytabs_, titles)
     save_button = ipywidgets.Button(
         description="Save",
         tooltip="Make changes permanent")
