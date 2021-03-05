@@ -128,3 +128,8 @@ def test_fit_component():
     assert g2.centre.value == 8
     np.testing.assert_allclose(g1.centre.value, 0.804, rtol=1E-2)
     np.testing.assert_allclose(g1.sigma.value, 0.965, rtol=1E-2)
+
+    assert wd["iterpath"].disabled == True
+    fc.only_current = False
+    assert wd["iterpath"].disabled == False
+
