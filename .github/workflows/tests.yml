@@ -9,7 +9,6 @@ jobs:
     timeout-minutes: 30
     env:
       MPLBACKEND: agg
-      PIP_ARGS: --upgrade --use-feature=2020-resolver -e
       PYTEST_ARGS: --pyargs hyperspy_gui_ipywidgets
       PYTEST_ARGS_COVERAGE: 
     strategy:
@@ -17,11 +16,16 @@ jobs:
       matrix:
         PYTHON_VERSION: [3.6, 3.7]
         PIP_SELECTOR: ['[tests]']
+        PIP_ARGS: ['--upgrade']
         include:
           - PYTHON_VERSION: 3.8
             PIP_SELECTOR: '[tests, coverage]'
             PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
-            LABEL: /coverage
+            LABEL: -coverage
+          - PYTHON_VERSION: 3.8
+            PIP_SELECTOR: '[tests, coverage]'
+            PIP_ARGS: --pre
+            LABEL: -pre_release
     steps:
       - uses: actions/checkout@v2
 
@@ -38,7 +42,7 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          pip install ${{ env.PIP_ARGS }} .'${{ matrix.PIP_SELECTOR }}'
+          pip install ${{ matrix.PIP_ARGS }} .'${{ matrix.PIP_SELECTOR }}'
           pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
 
       - name: Run test suite
