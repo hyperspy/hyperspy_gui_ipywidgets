@@ -6,7 +6,7 @@ import numpy as np
 
 from link_traits import link, dlink
 from hyperspy_gui_ipywidgets.utils import (
-    add_display_arg, labelme, set_title_container
+    add_display_arg, labelme, set_title_container, enum2dropdown
     )
 
 
@@ -136,7 +136,7 @@ def get_parameter_widget(obj, **kwargs):
         update.on_click(on_update_clicked)
         wdict["update_button"] = update
         container = Accordion([VBox([update] + par_widgets)])
-        set_title_container(container, obj.name)
+        set_title_container(container, [obj.name])
 
     return {
         "widget": container,
@@ -242,7 +242,14 @@ def get_scalable_fixed_patter_widget(obj, **kwargs):
 def fit_component_ipy(obj, **kwargs):
     wdict = {}
     only_current = Checkbox()
+    iterpath = enum2dropdown(obj.traits()["iterpath"])
+
+    def disable_iterpath(change):
+        iterpath.disabled = change.new
+    only_current.observe(disable_iterpath, "value")
+
     wdict["only_current"] = only_current
+    wdict["iterpath"] = iterpath
     help_text = HTML(
         "Click on the signal figure and drag to the right to select a"
         "range. Press `Fit` to fit the component in that range. If only "
@@ -250,10 +257,11 @@ def fit_component_ipy(obj, **kwargs):
         layout=ipywidgets.Layout(width="auto"))
     wdict["help_text"] = help_text
 
-    help = Accordion(children=[help_text])
-    set_title_container(help, "Help")
+    help = Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
 
     link((obj, "only_current"), (only_current, "value"))
+    link((obj, "iterpath"), (iterpath, "value"))
     fit = Button(
         description="Fit",
         tooltip="Fit in the selected signal range")
@@ -268,6 +276,7 @@ def fit_component_ipy(obj, **kwargs):
     fit.on_click(on_fit_clicked)
     box = VBox([
         labelme("Only current", only_current),
+        labelme("Iterpath", wdict["iterpath"]),
         help,
         HBox((fit, close))
     ])

@@ -35,7 +35,8 @@ def test_multivalue_parameter():
     wd["element1"]["value"].value = -3
     assert wd["element0"]["value"].value == p.value[0]
     assert wd["element1"]["value"].value == p.value[1]
-    # TODO: update button
+
+    wd["update_button"]._click_handlers(wd["update_button"])    # Trigger it
     # TODO: bounds
 
 
@@ -128,3 +129,10 @@ def test_fit_component():
     assert g2.centre.value == 8
     np.testing.assert_allclose(g1.centre.value, 0.804, rtol=1E-2)
     np.testing.assert_allclose(g1.sigma.value, 0.965, rtol=1E-2)
+
+    assert wd["iterpath"].disabled == True
+    fc.only_current = False
+    assert wd["iterpath"].disabled == False
+
+    wd["close_button"]._click_handlers(wd["close_button"])    # Trigger it
+

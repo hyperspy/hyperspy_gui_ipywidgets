@@ -22,7 +22,7 @@ def interactive_range_ipy(obj, **kwargs):
     help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Press `Apply` to perform the operation or `Close` to cancel.",)
-    help = ipywidgets.Accordion(children=[help_text])
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
     set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
@@ -78,13 +78,13 @@ def calibrate_ipy(obj, **kwargs):
     new_right = ipywidgets.FloatText(disabled=False, description="New right")
     units = ipywidgets.Text(description="Units", )
     unitsl = ipywidgets.Label(layout=ipywidgets.Layout(width="10%"))
-    help_txt = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Set the new left and right values and press `Apply` to update "
         "the calibration of the axis with the new values or press "
         " `Close` to cancel.",)
-    wdict["help"] = help_txt
-    help = ipywidgets.Accordion(children=[help_txt])
+    wdict["help"] = help_text
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
     set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
