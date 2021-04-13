@@ -55,6 +55,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
@@ -80,7 +81,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['hyperspy>=1.6', 'ipywidgets>=7.0', 'link_traits'],
+    install_requires=['hyperspy>=1.6.2', 'ipywidgets>=7.0', 'link_traits'],
 
 
     # List additional groups of dependencies here (e.g. development
