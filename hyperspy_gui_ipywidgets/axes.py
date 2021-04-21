@@ -16,7 +16,7 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
                                random_position_button=False,
                                **kwargs):
     continuous_update = ipywidgets.Checkbox(True,
-                                            description="Continous update")
+                                            description="Continuous update")
     wdict = {}
     wdict["continuous_update"] = continuous_update
     widgets = []
@@ -71,7 +71,7 @@ def get_ipy_navigation_sliders(obj, in_accordion=False,
         random_nav_position = ipywidgets.Button(
             description="Set random navigation position.",
             tooltip="Set random navigation position, useful to check the "
-                     "method paramters.",
+                     "method parameters.",
             layout=ipywidgets.Layout(width="auto"))
 
         def _random_navigation_position_fired(b):

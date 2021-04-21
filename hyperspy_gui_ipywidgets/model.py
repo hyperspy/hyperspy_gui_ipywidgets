@@ -190,7 +190,7 @@ def get_model_widget(obj, **kwargs):
 
 @add_display_arg
 def get_eelscl_widget(obj, **kwargs):
-    """Create ipywidgets for the EELSCLEDge component.
+    """Create ipywidgets for the EELSCLEdge component.
 
     """
     wdict = {}
