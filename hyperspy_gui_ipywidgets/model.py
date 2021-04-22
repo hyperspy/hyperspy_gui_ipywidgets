@@ -289,3 +289,51 @@ def fit_component_ipy(obj, **kwargs):
         "widget": box,
         "wdict": wdict,
     }
+
+
+@add_display_arg
+def estimate_and_set_coreloss_edge_onset_ipy(obj, **kwargs):
+    wdict = {}
+    only_current = Checkbox()
+    wdict["only_current"] = only_current
+    help = HTML(
+        "Click on the signal figure and drag to the right to select a"
+        "range. Press `Set onset` to set the onset. If only "
+        "current is unchecked the fit is performed in the whole dataset.",
+        layout=ipywidgets.Layout(width="auto"))
+    wdict["help"] = help
+    help = Accordion(children=[help])
+    help.set_title(0, "Help")
+    link((obj, "only_current"), (only_current, "value"))
+    set_onset = Button(
+        description="Set onset",
+        tooltip="Set onset to the selected signal range")
+    percent_position = FloatSlider(
+            description='Percent position', min=0, max=1, step=0.001,
+            value=0.1)
+    link((obj, "percent_position"), (percent_position, "value"))
+    close = Button(
+        description="Close",
+        tooltip="Close and remove the onset setter from the signal figure.")
+    wdict["set_onset_button"] = set_onset
+    wdict["percent_position_slider"] = percent_position
+    wdict["close_button"] = close
+
+    def on_set_onset_clicked(b):
+        obj._set_onset_fired()
+    set_onset.on_click(on_set_onset_clicked)
+    box = VBox([
+        labelme("Percent position", percent_position),
+        labelme("Only current", only_current),
+        help,
+        HBox((set_onset, close))
+    ])
+
+    def on_close_clicked(b):
+        obj.span_selector_switch(False)
+        box.close()
+    close.on_click(on_close_clicked)
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
