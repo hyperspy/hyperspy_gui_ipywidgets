@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [3.6, 3.7, 3.9]
+        PYTHON_VERSION: [3.7, 3.9]
         PIP_SELECTOR: ['[tests]']
         PIP_ARGS: ['--upgrade']
         include:
