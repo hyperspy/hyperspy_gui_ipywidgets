@@ -21,8 +21,10 @@ with open(path.join(here, "hyperspy_gui_ipywidgets", "version.py")) as fp:
 
 PROJECT_URLS = {
     'Bug Tracker': 'https://github.com/hyperspy/hyperspy_gui_ipywidgets/issues',
+    'Changelog' : 'https://github.com/hyperspy/hyperspy_gui_ipywidgets/blob/main/CHANGES.md',
+    'Conda-Forge' : 'https://anaconda.org/conda-forge/hyperspy-gui-ipywidgets',
     'Documentation': 'https://hyperspy.org/hyperspy-doc/current/index.html',
-    'Source Code': 'https://github.com/hyperspy_gui_ipywidgets/hyperspy',
+    'Source Code': 'https://github.com/hyperspy/hyperspy_gui_ipywidgets',
     'Support' : 'https://gitter.im/hyperspy/hyperspy'
 }
 
