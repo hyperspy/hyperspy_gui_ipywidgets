@@ -5,8 +5,8 @@ from link_traits import link
 from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
                                    IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
 
-from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown, 
-        add_display_arg)
+from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
+        add_display_arg, set_title_container)
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
 from hyperspy_gui_ipywidgets.axes import get_ipy_navigation_sliders
 
@@ -19,11 +19,11 @@ def interactive_range_ipy(obj, **kwargs):
     left = ipywidgets.FloatText(disabled=True)
     right = ipywidgets.FloatText(disabled=True)
     units = ipywidgets.Label()
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Press `Apply` to perform the operation or `Close` to cancel.",)
-    help = ipywidgets.Accordion(children=[help])
-    help.set_title(0, "Help")
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -33,7 +33,7 @@ def interactive_range_ipy(obj, **kwargs):
     wdict["left"] = left
     wdict["right"] = right
     wdict["units"] = units
-    wdict["help"] = help
+    wdict["help_text"] = help_text
     wdict["close_button"] = close
     wdict["apply_button"] = apply
 
@@ -140,7 +140,6 @@ def calibrate2d_ipy(obj, **kwargs):
 def calibrate_ipy(obj, **kwargs):
     # Define widgets
     wdict = {}
-    axis = obj.axis
     left = ipywidgets.FloatText(disabled=True, description="Left")
     right = ipywidgets.FloatText(disabled=True, description="Right")
     offset = ipywidgets.FloatText(disabled=True, description="Offset")
@@ -149,15 +148,14 @@ def calibrate_ipy(obj, **kwargs):
     new_right = ipywidgets.FloatText(disabled=False, description="New right")
     units = ipywidgets.Text(description="Units")
     unitsl = ipywidgets.Label(layout=ipywidgets.Layout(width="10%"))
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Set the new left and right values and press `Apply` to update "
         "the calibration of the axis with the new values or press "
-        " `Close` to cancel."
-    )
-    wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
-    help.set_title(0, "Help")
+        " `Close` to cancel.",)
+    wdict["help"] = help_text
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.",
@@ -249,13 +247,13 @@ def print_edges_table_ipy(obj, **kwargs):
     update = ipywidgets.Button(description='Refresh table', layout={'width': 'initial'})
     gb = ipywidgets.GridBox(layout=ipywidgets.Layout(
             grid_template_columns="70px 125px 75px 250px"))
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a signal "
         "range. Drag the rectangle or change its border to display edges in "
         "different signal range. Select edges to show their positions "
         "on the signal.",)
-    help = ipywidgets.Accordion(children=[help], selected_index=None)
-    help.set_title(0, "Help")
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(description="Close", tooltip="Close the widget.")
     reset = ipywidgets.Button(description="Reset",
                               tooltip="Reset the span selector.")
@@ -566,10 +564,10 @@ def image_constast_editor_ipy(obj, **kwargs):
     linscale = ipywidgets.FloatSlider(0.1, min=0.001, max=10.0, step=0.001,
                                       description="Linear scale")
     auto = ipywidgets.Checkbox(True, description="Auto")
-    help = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
-    wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help], selected_index=None)
-    help.set_title(0, "Help")
+    help_text = ipywidgets.HTML(IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
+    wdict["help_text"] = help_text
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget.")
@@ -684,7 +682,7 @@ def remove_background_ipy(obj, **kwargs):
     link((obj, "red_chisq"), (red_chisq, "value"))
     fast = ipywidgets.Checkbox(description="Fast")
     zero_fill = ipywidgets.Checkbox(description="Zero Fill")
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag to the right to select a "
         "range. Press `Apply` to remove the background in the whole dataset. "
         "If \"Fast\" is checked, the background parameters are estimated "
@@ -694,9 +692,9 @@ def remove_background_ipy(obj, **kwargs):
         "region will be set to zero. "
         "Otherwise the background subtraction will be performed in the "
         "pre-fitting region as well.",)
-    wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help], selected_index=None)
-    help.set_title(0, "Help")
+    wdict["help_text"] = help_text
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove span selector from the signal figure.")
@@ -767,10 +765,10 @@ def spikes_removal_ipy(obj, **kwargs):
     interpolator_kind = enum2dropdown(obj.traits()["interpolator_kind"])
     spline_order = ipywidgets.IntSlider(min=1, max=10)
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         value=SPIKES_REMOVAL_INSTRUCTIONS.replace('\n', '<br/>'))
-    help = ipywidgets.Accordion(children=[help], selected_index=None)
-    help.set_title(0, "Help")
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
 
     show_diff = ipywidgets.Button(
         description="Show derivative histogram",
@@ -846,7 +844,8 @@ def spikes_removal_ipy(obj, **kwargs):
             labelme("Default spike width", default_spike_width),
             labelme("Spline order", spline_order), ]),))
 
-    advanced.set_title(0, "Advanced settings")
+    set_title_container(advanced, ["Advanced settings"])
+
     box = ipywidgets.VBox([
         ipywidgets.VBox([
             show_diff,
@@ -1061,7 +1060,7 @@ def find_peaks2D_ipy(obj, **kwargs):
     l = [labelme("Method", method)]
     l.extend([value for item, value in box_dict.items()])
     method_parameters = ipywidgets.Accordion((ipywidgets.VBox(l), ))
-    method_parameters.set_title(0, "Method parameters")
+    set_title_container(method_parameters, ["Method parameters"])
 
     widgets_list.extend([method_parameters,
                          ipywidgets.HBox([compute, close])])

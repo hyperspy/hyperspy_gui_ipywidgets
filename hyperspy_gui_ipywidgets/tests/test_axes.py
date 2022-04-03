@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
@@ -65,3 +66,41 @@ class TestAxes:
                               attributes=("value", "index", "units",
                                           "index_in_array", "name",
                                           "size", "scale", "offset"))
+
+def test_non_uniform_axes():
+    try:
+        from hyperspy.axes import UniformDataAxis
+    except ImportError:
+        pytest.skip("HyperSpy version doesn't support non-uniform axis")
+
+    dict0 = {'scale': 1.0, 'size': 2, }
+    dict1 = {'expression': 'a / (x+b)', 'a': 1240, 'b': 1, 'size': 3,
+             'name': 'plumage', 'units': 'beautiful'}
+    dict2 = {'axis': np.arange(4), 'name': 'norwegianblue', 'units': 'ex'}
+    dict3 = {'expression': 'a / (x+b)', 'a': 1240, 'b': 1, 'x': dict2,
+             'name': 'pushing up', 'units': 'the daisies'}
+    s = hs.signals.Signal1D(np.empty((3, 2, 4, 4)), axes=[dict0, dict1, dict2, dict3])
+    s.axes_manager[0].navigate = False
+
+    am = s.axes_manager
+    wd = s.axes_manager.gui(**KWARGS)["ipywidgets"]["wdict"]
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=0,
+                          attributes=("name", "units", "size", "index",
+                                      "value", "index_in_array",))
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=2,
+                          attributes=("name", "units", "size",
+                                      "index_in_array"))
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=3,
+                          attributes=("name", "units", "size",
+                                      "index_in_array"))
+    wd2 = s.axes_manager.gui_navigation_sliders(
+            **KWARGS)["ipywidgets"]["wdict"]
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=0,
+                          attributes=("name", "units", "size", "index",
+                                      "value", "index_in_array",))
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=2,
+                          attributes=("name", "units", "size",
+                                      "index_in_array"))
+    check_axis_attributes(axes_manager=am, widgets_dict=wd, index=3,
+                          attributes=("name", "units", "size",
+                                      "index_in_array"))

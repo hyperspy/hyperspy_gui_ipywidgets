@@ -1,0 +1,64 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  run_test_site:
+    name: py${{ matrix.PYTHON_VERSION }}${{ matrix.LABEL }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MPLBACKEND: agg
+      PIP_SELECTOR: '[tests, coverage]'
+      PYTEST_ARGS: --pyargs hyperspy_gui_ipywidgets
+      PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ['3.7', '3.9', '3.10']
+        LABEL: [-RnM]
+        PIP_ARGS: [--upgrade]
+        include:
+          - PYTHON_VERSION: '3.8'
+            PIP_ARGS: --pre --upgrade
+            LABEL: -pre_release-RnM
+          - PYTHON_VERSION: '3.8'
+            LABEL: -RnP
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v3
+        name: Install Python
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+
+      - name: Display version
+        run: |
+          python --version
+          pip --version
+
+      - name: Install HyperSpy (RELEASE_next_minor)
+        shell: bash
+        if: contains( matrix.LABEL, 'RnM')
+        run: |
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+
+      - name: Install HyperSpy (RELEASE_next_patch)
+        shell: bash
+        if: contains( matrix.LABEL, 'RnP')
+        run: |
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_patch.zip
+
+      - name: Install
+        shell: bash
+        run: |
+          pip install ${{ matrix.PIP_ARGS }} .'${{ env.PIP_SELECTOR }}'
+
+      - name: Run test suite
+        run: |
+          pytest ${{ env.PYTEST_ARGS }} ${{ env.PYTEST_ARGS_COVERAGE }}
+
+      - name: Upload coverage to Codecov
+        if: ${{ always() }} && ${{ env.PYTEST_ARGS_COVERAGE }} 
+        uses: codecov/codecov-action@v2

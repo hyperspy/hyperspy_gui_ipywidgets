@@ -2,7 +2,7 @@
 import ipywidgets
 
 from hyperspy_gui_ipywidgets.utils import (
-    labelme, add_display_arg, float2floattext, get_label)
+    add_display_arg, float2floattext, get_label)
 
 from link_traits import link
 
