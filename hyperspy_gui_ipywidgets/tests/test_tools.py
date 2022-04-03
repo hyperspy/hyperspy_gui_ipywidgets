@@ -2,8 +2,12 @@ import numpy as np
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy.signal_tools import (Signal1DCalibration, ImageContrastEditor,
-                                   EdgesRange)
+from hyperspy.signal_tools import (
+    Signal1DCalibration,
+    Signal2DCalibration,
+    ImageContrastEditor,
+    EdgesRange
+)
 
 
 class TestTools:
@@ -251,3 +255,17 @@ class TestTools:
 
         wd["reset"]._click_handlers(wd["reset"])  # reset the selector
         assert len(wd['gb'].children) == 4 # only header displayed
+
+
+def test_calibration_2d():
+    s = hs.signals.Signal2D(np.zeros((100, 100)))
+    cal2d = Signal2DCalibration(s)
+    wd = cal2d.gui(**KWARGS)["ipywidgets"]["wdict"]
+    cal2d.x0, cal2d.x1, cal2d.y0, cal2d.y1 = 50, 70, 80, 80
+    wd["new_length"].value = 10
+    wd["units"].value = "mm"
+    wd["apply_button"]._click_handlers(wd["apply_button"])
+    assert s.axes_manager[0].scale == 0.5
+    assert s.axes_manager[1].scale == 0.5
+    assert s.axes_manager[0].units == "mm"
+    assert s.axes_manager[1].units == "mm"
