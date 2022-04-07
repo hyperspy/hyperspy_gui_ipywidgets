@@ -27,9 +27,9 @@ jobs:
             PIP_ARGS: --pre
             LABEL: -pre_release
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         name: Install Python
         with:
           python-version: ${{ matrix.PYTHON_VERSION }}
@@ -51,4 +51,4 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ always() }} && ${{ matrix.PYTEST_ARGS_COVERAGE }} 
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
