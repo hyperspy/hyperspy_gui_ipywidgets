@@ -6,6 +6,8 @@
 
 * Improve rendering changelog on github and fix hyperlinks in `README.md` ([#41](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/41)).
 * Speed up import time by importing submodules lazily and drop support for python 3.6 ([#40](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/40)).
+* Add python 3.10 to github CI and update github actions versions ([#42](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/42)).
+
 
 ## v1.4.0 (2021-04-13)
 
