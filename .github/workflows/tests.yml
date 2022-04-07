@@ -14,15 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [3.7, 3.9]
+        PYTHON_VERSION: ['3.7', '3.9', '3.10']
         PIP_SELECTOR: ['[tests]']
         PIP_ARGS: ['--upgrade']
         include:
-          - PYTHON_VERSION: 3.8
+          - PYTHON_VERSION: '3.8'
             PIP_SELECTOR: '[tests, coverage]'
             PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
             LABEL: -coverage
-          - PYTHON_VERSION: 3.8
+          - PYTHON_VERSION: '3.8'
             PIP_SELECTOR: '[tests, coverage]'
             PIP_ARGS: --pre
             LABEL: -pre_release
