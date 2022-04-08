@@ -9,23 +9,22 @@ jobs:
     timeout-minutes: 30
     env:
       MPLBACKEND: agg
+      PIP_SELECTOR: '[tests, coverage]'
       PYTEST_ARGS: --pyargs hyperspy_gui_ipywidgets
-      PYTEST_ARGS_COVERAGE: 
+      PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
     strategy:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ['3.7', '3.9', '3.10']
-        PIP_SELECTOR: ['[tests]']
-        PIP_ARGS: ['--upgrade']
+        LABEL: [-RnM]
+        PIP_ARGS: [--upgrade]
         include:
           - PYTHON_VERSION: '3.8'
-            PIP_SELECTOR: '[tests, coverage]'
-            PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
-            LABEL: -coverage
+            PIP_ARGS: --pre --upgrade
+            LABEL: -pre_release-RnM
           - PYTHON_VERSION: '3.8'
-            PIP_SELECTOR: '[tests, coverage]'
-            PIP_ARGS: --pre
-            LABEL: -pre_release
+            LABEL: -RnP
+
     steps:
       - uses: actions/checkout@v3
 
@@ -39,16 +38,27 @@ jobs:
           python --version
           pip --version
 
+      - name: Install HyperSpy (RELEASE_next_minor)
+        shell: bash
+        if: contains( matrix.LABEL, 'RnM')
+        run: |
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+
+      - name: Install HyperSpy (RELEASE_next_patch)
+        shell: bash
+        if: contains( matrix.LABEL, 'RnP')
+        run: |
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_patch.zip
+
       - name: Install
         shell: bash
         run: |
-          pip install ${{ matrix.PIP_ARGS }} .'${{ matrix.PIP_SELECTOR }}'
-          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+          pip install ${{ matrix.PIP_ARGS }} .'${{ env.PIP_SELECTOR }}'
 
       - name: Run test suite
         run: |
-          pytest ${{ env.PYTEST_ARGS }} ${{ matrix.PYTEST_ARGS_COVERAGE }}
+          pytest ${{ env.PYTEST_ARGS }} ${{ env.PYTEST_ARGS_COVERAGE }}
 
       - name: Upload coverage to Codecov
-        if: ${{ always() }} && ${{ matrix.PYTEST_ARGS_COVERAGE }} 
+        if: ${{ always() }} && ${{ env.PYTEST_ARGS_COVERAGE }} 
         uses: codecov/codecov-action@v2
