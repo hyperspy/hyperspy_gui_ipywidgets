@@ -120,7 +120,7 @@ class TestTools:
         wd["left"].value = 15.
         wd["right"].value = 50.
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
-        np.testing.assert_allclose(s.data[2:], s2.data[2:])
+        np.testing.assert_allclose(s.data[2:], s2.data[2:], atol=1E-5)
         np.testing.assert_allclose(np.zeros(2), s2.data[:2])
 
     def test_spikes_removal_tool(self):

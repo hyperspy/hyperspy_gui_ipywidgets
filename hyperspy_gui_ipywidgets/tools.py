@@ -75,15 +75,15 @@ def calibrate2d_ipy(obj, **kwargs):
     new_length = ipywidgets.FloatText(disabled=False, description="New length")
     units = ipywidgets.Text(description="Units")
     unitsl = ipywidgets.Label(layout=ipywidgets.Layout(width="10%"))
-    help = ipywidgets.HTML(
+    help_text = ipywidgets.HTML(
         "Click on the signal figure and drag line to some feature with a "
         "known size. Set the new length, then press `Apply` to update both "
         "the x- and y-dimensions in the signal, or press `Close` to cancel. "
         "The units can also be set with `Units`"
     )
-    wdict["help"] = help
-    help = ipywidgets.Accordion(children=[help])
-    help.set_title(0, "Help")
+    wdict["help_text"] = help_text
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
     close = ipywidgets.Button(
         description="Close",
         tooltip="Close widget and remove line from the signal figure.",
@@ -153,7 +153,7 @@ def calibrate_ipy(obj, **kwargs):
         "range. Set the new left and right values and press `Apply` to update "
         "the calibration of the axis with the new values or press "
         " `Close` to cancel.",)
-    wdict["help"] = help_text
+    wdict["help_text"] = help_text
     help = ipywidgets.Accordion(children=[help_text], selected_index=None)
     set_title_container(help, ["Help"])
     close = ipywidgets.Button(
