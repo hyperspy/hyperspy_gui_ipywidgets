@@ -2,7 +2,7 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
-## v1.5.0.dev0 (UNRELEASED)
+## v1.5.0.dev0 (2022-04-26)
 
 * Improve rendering changelog on github and fix hyperlinks in `README.md` ([#41](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/41)).
 * Speed up import time by importing submodules lazily and drop support for python 3.6 ([#40](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/40)).
