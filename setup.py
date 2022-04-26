@@ -84,7 +84,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     python_requires='~=3.7',
-    install_requires=['hyperspy>=1.6.2', 'ipywidgets>=7.0', 'link_traits'],
+    install_requires=['hyperspy>=1.7', 'ipywidgets>=7.0', 'link_traits'],
 
 
     # List additional groups of dependencies here (e.g. development
