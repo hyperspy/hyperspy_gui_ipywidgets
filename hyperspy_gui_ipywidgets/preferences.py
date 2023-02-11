@@ -43,6 +43,7 @@ TRAITS2IPYWIDGETS = {
     traits.trait_types.Bool: bool2checkbox,
     traits.trait_types.CFloat: float2floattext,
     traits.trait_types.Directory: directory2unicode,
+    traits.trait_types.File: directory2unicode,
     traits.trait_types.Range: range2floatrangeslider,
     traits.trait_types.Enum: enum2dropdown,
     traits.trait_types.Str: str2text,
