@@ -22,8 +22,8 @@ jobs:
           - PYTHON_VERSION: '3.8'
             PIP_ARGS: --pre --upgrade
             LABEL: -pre_release-RnM
-          - PYTHON_VERSION: '3.8'
-            LABEL: -RnP
+          # - PYTHON_VERSION: '3.8'
+          #   LABEL: -RnP
 
     steps:
       - uses: actions/checkout@v3
@@ -38,11 +38,11 @@ jobs:
           python --version
           pip --version
 
-      - name: Install HyperSpy (RELEASE_next_minor)
+      - name: Install HyperSpy (RELEASE_next_major)
         shell: bash
         if: contains( matrix.LABEL, 'RnM')
         run: |
-          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_major.zip
 
       - name: Install HyperSpy (RELEASE_next_patch)
         shell: bash
