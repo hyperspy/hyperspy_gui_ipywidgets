@@ -128,7 +128,7 @@ class TestTools:
         # Add three spikes
         s.data[1, 0, 1] += 2
         s.data[0, 2, 29] += 1
-        s.data[1, 2, 14] += 1
+        s.data[1, 2, 14] += 5
         wd = s.spikes_removal_tool(**KWARGS)["ipywidgets"]["wdict"]
 
         def next():
@@ -159,10 +159,9 @@ class TestTools:
         assert s.axes_manager.indices == (2, 1)
         np.random.seed(1)
         wd["add_noise"].value = True
-        wd["interpolator_kind"].value = "Spline"
         wd["spline_order"].value = 3
         remove()
-        assert s.data[1, 2, 14] == 0
+        assert s.data[1, 2, 14] <= 2
         assert s.axes_manager.indices == (0, 0)
 
     def test_constrast_editor(self):

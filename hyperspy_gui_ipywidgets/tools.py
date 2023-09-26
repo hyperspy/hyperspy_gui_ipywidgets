@@ -762,7 +762,6 @@ def spikes_removal_ipy(obj, **kwargs):
     threshold = ipywidgets.FloatText()
     add_noise = ipywidgets.Checkbox()
     default_spike_width = ipywidgets.IntText()
-    interpolator_kind = enum2dropdown(obj.traits()["interpolator_kind"])
     spline_order = ipywidgets.IntSlider(min=1, max=10)
     progress_bar = ipywidgets.IntProgress(max=len(obj.coordinates) - 1)
     help_text = ipywidgets.HTML(
@@ -789,7 +788,6 @@ def spikes_removal_ipy(obj, **kwargs):
     wdict["threshold"] = threshold
     wdict["add_noise"] = add_noise
     wdict["default_spike_width"] = default_spike_width
-    wdict["interpolator_kind"] = interpolator_kind
     wdict["spline_order"] = spline_order
     wdict["progress_bar"] = progress_bar
     wdict["show_diff_button"] = show_diff
@@ -822,9 +820,6 @@ def spikes_removal_ipy(obj, **kwargs):
         else:
             for child in labeled_spline_order.children:
                 child.layout.display = "none"
-    interpolator_kind.observe(enable_interpolator_kind, "value")
-    link((obj, "interpolator_kind"),
-         (interpolator_kind, "value"))
     link((obj, "threshold"), (threshold, "value"))
     link((obj, "add_noise"), (add_noise, "value"))
     link((obj, "default_spike_width"),
@@ -834,13 +829,9 @@ def spikes_removal_ipy(obj, **kwargs):
     # Trigger the function that controls the visibility  as
     # setting the default value doesn't trigger it.
 
-    class Dummy:
-        new = interpolator_kind.value
-    enable_interpolator_kind(change=Dummy())
     advanced = ipywidgets.Accordion((
         ipywidgets.VBox([
             labelme("Add noise", add_noise),
-            labelme("Interpolator kind", interpolator_kind),
             labelme("Default spike width", default_spike_width),
             labelme("Spline order", spline_order), ]),))
 
