@@ -241,7 +241,7 @@ class TestTools:
         assert wd["units"].value == 'eV'
         assert wd["left"].value == 500
         assert wd["right"].value == 550
-        assert len(wd['gb'].children) == 36 # 9 edges displayed
+        assert len(wd['gb'].children) == 44 # 9 edges displayed
 
         wd['major'].value = True
         wd["update"]._click_handlers(wd["update"])  # refresh the table
