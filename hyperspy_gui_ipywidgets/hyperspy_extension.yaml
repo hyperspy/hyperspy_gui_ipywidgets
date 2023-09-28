@@ -10,6 +10,9 @@ GUI:
       hyperspy.Preferences:
         module: hyperspy_gui_ipywidgets.preferences
         function: show_preferences_widget
+      exspy.Preferences:
+        module: hyperspy_gui_ipywidgets.preferences
+        function: show_exspy_preferences_widget
       hyperspy.DataAxis:
         module: hyperspy_gui_ipywidgets.axes
         function: _get_axis_widgets
