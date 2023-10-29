@@ -1,10 +1,11 @@
 from numpy.random import random
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
-from hyperspy._signals.eels import EELSTEMParametersUI
-from hyperspy._signals.eds_sem import EDSSEMParametersUI
-from hyperspy._signals.eds_tem import EDSTEMParametersUI
+
+
+exspy = pytest.importorskip("exspy")
 
 
 class TestSetMicroscopeParameters:
@@ -18,11 +19,11 @@ class TestSetMicroscopeParameters:
         md = s.metadata
         wd = s.set_microscope_parameters(**KWARGS)["ipywidgets"]["wdict"]
         if signal_type == "EELS":
-            mapping = EELSTEMParametersUI.mapping
+            mapping = exspy.signals.eels.EELSTEMParametersUI.mapping
         elif signal_type == "EDS_SEM":
-            mapping = EDSSEMParametersUI.mapping
+            mapping = exspy.signals.eds_sem.EDSSEMParametersUI.mapping
         elif signal_type == "EDS_TEM":
-            mapping = EDSTEMParametersUI.mapping
+            mapping = exspy.signals.eds_tem.EDSTEMParametersUI.mapping
         for key, widget in wd.items():
             if "button" not in key:
                 widget.value = random()

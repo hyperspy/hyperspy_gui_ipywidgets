@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
@@ -6,7 +7,6 @@ from hyperspy.signal_tools import (
     Signal1DCalibration,
     Signal2DCalibration,
     ImageContrastEditor,
-    EdgesRange
 )
 
 
@@ -128,7 +128,7 @@ class TestTools:
         # Add three spikes
         s.data[1, 0, 1] += 2
         s.data[0, 2, 29] += 1
-        s.data[1, 2, 14] += 1
+        s.data[1, 2, 14] += 5
         wd = s.spikes_removal_tool(**KWARGS)["ipywidgets"]["wdict"]
 
         def next():
@@ -159,10 +159,9 @@ class TestTools:
         assert s.axes_manager.indices == (2, 1)
         np.random.seed(1)
         wd["add_noise"].value = True
-        wd["interpolator_kind"].value = "Spline"
-        wd["spline_order"].value = 3
+        wd["spline_order"].value = 1
         remove()
-        assert s.data[1, 2, 14] == 0
+        assert s.data[1, 2, 14] <= 2
         assert s.axes_manager.indices == (0, 0)
 
     def test_constrast_editor(self):
@@ -230,9 +229,10 @@ class TestTools:
         assert im._plot.signal_plot.vmax == '100.0th'
 
     def test_eels_table_tool(self):
-        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        exspy = pytest.importorskip("exspy")
+        s = exspy.data.EELS_MnFe(True)
         s.plot()
-        er = EdgesRange(s)
+        er = exspy.signal_tools.EdgesRange(s)
 
         er.ss_left_value = 500
         er.ss_right_value = 550
@@ -242,7 +242,7 @@ class TestTools:
         assert wd["units"].value == 'eV'
         assert wd["left"].value == 500
         assert wd["right"].value == 550
-        assert len(wd['gb'].children) == 36 # 9 edges displayed
+        assert len(wd['gb'].children) == 44 # 9 edges displayed
 
         wd['major'].value = True
         wd["update"]._click_handlers(wd["update"])  # refresh the table

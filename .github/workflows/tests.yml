@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ['3.7', '3.9', '3.10']
+        PYTHON_VERSION: ['3.9', '3.10', '3.11']
         LABEL: [-RnM]
         PIP_ARGS: [--upgrade]
         include:
@@ -23,7 +23,10 @@ jobs:
             PIP_ARGS: --pre --upgrade
             LABEL: -pre_release-RnM
           - PYTHON_VERSION: '3.8'
-            LABEL: -RnP
+            PIP_ARGS: --pre --upgrade
+            LABEL: -mininum-RnM
+          # - PYTHON_VERSION: '3.8'
+          #   LABEL: -RnP
 
     steps:
       - uses: actions/checkout@v3
@@ -38,17 +41,23 @@ jobs:
           python --version
           pip --version
 
-      - name: Install HyperSpy (RELEASE_next_minor)
+      - name: Install HyperSpy (RELEASE_next_major)
         shell: bash
         if: contains( matrix.LABEL, 'RnM')
         run: |
-          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_minor.zip
+          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_major.zip
 
       - name: Install HyperSpy (RELEASE_next_patch)
         shell: bash
         if: contains( matrix.LABEL, 'RnP')
         run: |
           pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_patch.zip
+
+      - name: Install exSpy
+        if: "!contains( matrix.LABEL, 'mininum')"
+        shell: bash
+        run: |
+          pip install https://github.com/hyperspy/exspy/archive/main.zip
 
       - name: Install
         shell: bash
