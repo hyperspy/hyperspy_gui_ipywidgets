@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
@@ -6,7 +7,6 @@ from hyperspy.signal_tools import (
     Signal1DCalibration,
     Signal2DCalibration,
     ImageContrastEditor,
-    EdgesRange
 )
 
 
@@ -159,7 +159,7 @@ class TestTools:
         assert s.axes_manager.indices == (2, 1)
         np.random.seed(1)
         wd["add_noise"].value = True
-        wd["spline_order"].value = 3
+        wd["spline_order"].value = 1
         remove()
         assert s.data[1, 2, 14] <= 2
         assert s.axes_manager.indices == (0, 0)
@@ -229,9 +229,10 @@ class TestTools:
         assert im._plot.signal_plot.vmax == '100.0th'
 
     def test_eels_table_tool(self):
-        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        exspy = pytest.importorskip("exspy")
+        s = exspy.data.EELS_MnFe(True)
         s.plot()
-        er = EdgesRange(s)
+        er = exspy.signal_tools.EdgesRange(s)
 
         er.ss_left_value = 500
         er.ss_right_value = 550
