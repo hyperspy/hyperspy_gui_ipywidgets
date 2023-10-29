@@ -22,6 +22,9 @@ jobs:
           - PYTHON_VERSION: '3.8'
             PIP_ARGS: --pre --upgrade
             LABEL: -pre_release-RnM
+          - PYTHON_VERSION: '3.8'
+            PIP_ARGS: --pre --upgrade
+            LABEL: -mininum-RnM
           # - PYTHON_VERSION: '3.8'
           #   LABEL: -RnP
 
@@ -49,6 +52,12 @@ jobs:
         if: contains( matrix.LABEL, 'RnP')
         run: |
           pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_patch.zip
+
+      - name: Install exSpy
+        if: "!contains( matrix.LABEL, 'mininum')"
+        shell: bash
+        run: |
+          pip install https://github.com/hyperspy/exspy/archive/main.zip
 
       - name: Install
         shell: bash
