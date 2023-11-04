@@ -92,7 +92,7 @@ setup(
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'tests': ['pytest'],
+        'tests': ['pytest', 'pytest-rerunfailures'],
         'coverage':["pytest-cov", "codecov"]},
     entry_points={'hyperspy.extensions': 'hyperspy-gui-ipywidgets = hyperspy_gui_ipywidgets'},
     package_data={  # Optional

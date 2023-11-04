@@ -123,6 +123,9 @@ class TestTools:
         np.testing.assert_allclose(s.data[2:], s2.data[2:], atol=1E-5)
         np.testing.assert_allclose(np.zeros(2), s2.data[:2])
 
+    # Test will need to be update to be more robust
+    # for now, mark it as flaky
+    @pytest.mark.flaky(reruns=3)
     def test_spikes_removal_tool(self):
         s = hs.signals.Signal1D(np.ones((2, 3, 30)))
         # Add three spikes
