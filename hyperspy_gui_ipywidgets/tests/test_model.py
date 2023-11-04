@@ -97,7 +97,7 @@ def test_eels_component():
 
 
 def test_scalable_fixed_pattern():
-    s = hs.signals.Signal1D(np.empty((500,)))
+    s = hs.signals.Signal1D(np.ones((500,)))
     m = s.create_model()
     c = hs.model.components1D.ScalableFixedPattern(s)
     c.name = "sfp"
