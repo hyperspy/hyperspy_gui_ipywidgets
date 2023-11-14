@@ -9,27 +9,35 @@ jobs:
     timeout-minutes: 30
     env:
       MPLBACKEND: agg
-      PIP_SELECTOR: '[tests, coverage]'
+      PIP_SELECTOR: '[tests]'
       PYTEST_ARGS: --pyargs hyperspy_gui_ipywidgets
       PYTEST_ARGS_COVERAGE: --cov=. --cov-report=xml
     strategy:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ['3.9', '3.10', '3.11']
-        LABEL: [-RnM]
-        PIP_ARGS: [--upgrade]
+        LABEL: [-release, -RnM]
+        PIP_ARGS: [""]
         include:
           - PYTHON_VERSION: '3.8'
-            PIP_ARGS: --pre --upgrade
+            PIP_ARGS: --pre
             LABEL: -pre_release-RnM
-          - PYTHON_VERSION: '3.8'
-            PIP_ARGS: --pre --upgrade
-            LABEL: -mininum-RnM
-          # - PYTHON_VERSION: '3.8'
-          #   LABEL: -RnP
+          - PYTHON_VERSION: '3.12'
+            LABEL: -minimum
+          - PYTHON_VERSION: '3.12'
+            LABEL: -RnM
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Fetch tags upstream
+        if: ${{ github.repository_owner != 'hyperspy' }}
+        # Needs to fetch the tags from upstream to get the
+        # correct version with setuptools_scm
+        run: |
+          git remote add upstream https://github.com/hyperspy/hyperspy_gui_ipywidgets.git
+          git fetch --prune --unshallow
+          git fetch upstream --tags
 
       - uses: actions/setup-python@v4
         name: Install Python
@@ -42,25 +50,21 @@ jobs:
           pip --version
 
       - name: Install HyperSpy (RELEASE_next_major)
-        shell: bash
         if: contains( matrix.LABEL, 'RnM')
         run: |
-          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_major.zip
+          pip install git+https://github.com/hyperspy/hyperspy.git@RELEASE_next_major
 
       - name: Install HyperSpy (RELEASE_next_patch)
-        shell: bash
         if: contains( matrix.LABEL, 'RnP')
         run: |
-          pip install https://github.com/hyperspy/hyperspy/archive/RELEASE_next_patch.zip
+          pip install git+https://github.com/hyperspy/hyperspy.git@RELEASE_next_patch
 
       - name: Install exSpy
-        if: "!contains( matrix.LABEL, 'mininum')"
-        shell: bash
+        if: ${{ ! contains( matrix.LABEL, 'minimum') }}
         run: |
-          pip install https://github.com/hyperspy/exspy/archive/main.zip
+          pip install git+https://github.com/hyperspy/exspy.git
 
       - name: Install
-        shell: bash
         run: |
           pip install ${{ matrix.PIP_ARGS }} .'${{ env.PIP_SELECTOR }}'
 
