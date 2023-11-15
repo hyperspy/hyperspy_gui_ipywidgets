@@ -18,6 +18,19 @@
 
 
 import importlib
+from pathlib import Path
+
+
+if Path(__file__).parent.parent.name == "site-packages":  # pragma: no cover
+    # Tested in the "Package & Test" workflow on GitHub CI
+    from importlib.metadata import version
+
+    __version__ = version("hyperspy_gui_ipywidgets")
+else:
+    # Editable install
+    from setuptools_scm import get_version
+
+    __version__ = get_version(Path(__file__).parent.parent)
 
 
 __all__ = [
@@ -31,21 +44,14 @@ __all__ = [
     ]
 
 
-# mapping following the pattern: from value import key
-_import_mapping = {
-    '__version__':'.version',
-    }
-
-
 def __dir__():
     return sorted(__all__)
 
 
 def __getattr__(name):
     if name in __all__:
-        if name in _import_mapping.keys():
-            import_path = 'hyperspy_gui_ipywidgets' + _import_mapping.get(name)
-            return getattr(importlib.import_module(import_path), name)
+        if name == "__version__":
+            return __version__
         else:
             return importlib.import_module(
                 "." + name, 'hyperspy_gui_ipywidgets'

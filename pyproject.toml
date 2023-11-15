@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hyperspy_gui_ipywidgets"
+description = "ipywidgets GUI elements for the HyperSpy framework."
+requires-python = ">=3.8"
+readme = "README.md"
+keywords=[
+    "data analysis",
+    "microscopy",
+    "ipywidgets",
+    "hyperspy",
+    "multi-dimensional",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Scientific/Engineering",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Operating System :: Unix",
+  "Operating System :: MacOS",
+]
+dependencies = [
+  "hyperspy>=2.0rc0",
+  "ipywidgets>=7.0",
+  "link_traits",
+]
+dynamic = ["version"]
+
+[project.entry-points."hyperspy.extensions"]
+hyperspy-gui-ipywidgets = "hyperspy_gui_ipywidgets"
+
+[project.license]
+file = "LICENSE"
+
+[project.optional-dependencies]
+tests = [
+  "pytest",
+  "pytest-cov",
+  "pytest-rerunfailures",
+  "setuptools-scm",
+]
+dev = [
+  "black",
+  "hyperspy-gui-ipywidgets[doc]",
+  "hyperspy-gui-ipywidgets[tests]"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/hyperspy/hyperspy_gui_ipywidgets"
+"Bug Reports" = "https://github.com/hyperspy/hyperspy_gui_ipywidgets/issues"
+"Source" = "https://github.com/hyperspy/hyperspy_gui_ipywidgets"
+"Conda-Forge" = "https://anaconda.org/conda-forge/hyperspy-gui-ipywidgets"
+"Support" = "https://gitter.im/hyperspy/hyperspy"
+
+[tool.coverage.run]
+branch = true
+source = ["hyperspy_gui_ipywidgets"]
+omit = [
+  "hyperspy_gui_ipywidgets/tests/*",
+  "hyperspy_gui_ipywidgets/conftest.py",
+]
+
+[tool.coverage.report]
+precision = 2
+
+[tool.pytest.ini_options]
+#  "-ra",  # Display summary: "all except passes"
+addopts = "-ra"
+minversion = "6.0"
+testpaths = [
+  "hyperspy_gui_ipywidgets/tests",
+]
+
+[tool.setuptools.packages.find]
+include = ["hyperspy_gui_ipywidgets*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
+
+[tool.setuptools_scm]
+# Presence enables setuptools_scm, the version will be determine at build time from git
