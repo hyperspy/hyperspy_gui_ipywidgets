@@ -2,6 +2,8 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
+## v2.1 (UNRELEASED)
+
 ## v2.0 (2023-11-15)
 * Consolidate package metadata in `pyproject.toml` ([#49](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/49)).
 * Support HyperSpy 2.0 and set HyperSpy requirement to >=2.0 ([#48](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/48)).
