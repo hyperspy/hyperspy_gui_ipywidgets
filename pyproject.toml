@@ -91,3 +91,5 @@ include = ["hyperspy_gui_ipywidgets*"]
 
 [tool.setuptools_scm]
 # Presence enables setuptools_scm, the version will be determine at build time from git
+# The version will be updated by the `prepare_release.py` script
+fallback_version = "2.1.dev0"
