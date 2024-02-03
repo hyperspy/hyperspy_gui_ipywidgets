@@ -69,7 +69,47 @@ def show_preferences_widget(obj, **kwargs):
                  (widget.children[1], "value"))
         ipytabs[tab] = ipywidgets.VBox(ipytab)
     # This defines the order of the tab in the widget
-    titles = ["General", "GUIs", "Plot", "EELS", "EDS"]
+    titles = ["General", "GUIs", "Plot"]
+    ipytabs_ = ipywidgets.Tab(
+        children=[ipytabs[title] for title in titles])
+    set_title_container(ipytabs_, titles)
+    save_button = ipywidgets.Button(
+        description="Save",
+        tooltip="Make changes permanent")
+    wdict["save_button"] = save_button
+
+    def on_button_clicked(b):
+        obj.save()
+
+    save_button.on_click(on_button_clicked)
+
+    container = ipywidgets.VBox([ipytabs_, save_button])
+    return {
+        "widget": container,
+        "wdict": wdict,
+    }
+
+
+@add_display_arg
+def show_exspy_preferences_widget(obj, **kwargs):
+    ipytabs = {}
+    wdict = {}
+    for tab in obj.editable_traits():
+        tabdict = {}
+        wdict["tab_{}".format(tab)] = tabdict
+        ipytab = []
+        tabtraits = getattr(obj, tab).traits()
+        for trait_name in getattr(obj, tab).editable_traits():
+            trait = tabtraits[trait_name]
+            widget = TRAITS2IPYWIDGETS[type(trait.trait_type)](
+                trait, get_label(trait, trait_name))
+            ipytab.append(widget)
+            tabdict[trait_name] = widget.children[1]
+            link((getattr(obj, tab), trait_name),
+                 (widget.children[1], "value"))
+        ipytabs[tab] = ipywidgets.VBox(ipytab)
+    # This defines the order of the tab in the widget
+    titles = ["EELS", "EDS"]
     ipytabs_ = ipywidgets.Tab(
         children=[ipytabs[title] for title in titles])
     set_title_container(ipytabs_, titles)

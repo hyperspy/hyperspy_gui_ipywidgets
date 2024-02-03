@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
@@ -6,7 +7,6 @@ from hyperspy.signal_tools import (
     Signal1DCalibration,
     Signal2DCalibration,
     ImageContrastEditor,
-    EdgesRange
 )
 
 
@@ -123,48 +123,6 @@ class TestTools:
         np.testing.assert_allclose(s.data[2:], s2.data[2:], atol=1E-5)
         np.testing.assert_allclose(np.zeros(2), s2.data[:2])
 
-    def test_spikes_removal_tool(self):
-        s = hs.signals.Signal1D(np.ones((2, 3, 30)))
-        # Add three spikes
-        s.data[1, 0, 1] += 2
-        s.data[0, 2, 29] += 1
-        s.data[1, 2, 14] += 1
-        wd = s.spikes_removal_tool(**KWARGS)["ipywidgets"]["wdict"]
-
-        def next():
-            wd["next_button"]._click_handlers(wd["next_button"])
-
-        def previous():
-            wd["previous_button"]._click_handlers(wd["previous_button"])
-
-        def remove():
-            wd["remove_button"]._click_handlers(wd["remove_button"])
-        wd["threshold"].value = 1.5
-        next()
-        assert s.axes_manager.indices == (0, 1)
-        wd["threshold"].value = 0.5
-        assert s.axes_manager.indices == (0, 0)
-        next()
-        assert s.axes_manager.indices == (2, 0)
-        next()
-        assert s.axes_manager.indices == (0, 1)
-        previous()
-        assert s.axes_manager.indices == (2, 0)
-        wd["add_noise"].value = False
-        remove()
-        assert s.data[0, 2, 29] == 1
-        assert s.axes_manager.indices == (0, 1)
-        remove()
-        assert s.data[1, 0, 1] == 1
-        assert s.axes_manager.indices == (2, 1)
-        np.random.seed(1)
-        wd["add_noise"].value = True
-        wd["interpolator_kind"].value = "Spline"
-        wd["spline_order"].value = 3
-        remove()
-        assert s.data[1, 2, 14] == 0
-        assert s.axes_manager.indices == (0, 0)
-
     def test_constrast_editor(self):
         # To get this test to work, matplotlib backend needs to set to 'Agg'
         np.random.seed(1)
@@ -230,9 +188,10 @@ class TestTools:
         assert im._plot.signal_plot.vmax == '100.0th'
 
     def test_eels_table_tool(self):
-        s = hs.datasets.artificial_data.get_core_loss_eels_line_scan_signal(True)
+        exspy = pytest.importorskip("exspy")
+        s = exspy.data.EELS_MnFe(True)
         s.plot()
-        er = EdgesRange(s)
+        er = exspy.signal_tools.EdgesRange(s)
 
         er.ss_left_value = 500
         er.ss_right_value = 550
@@ -242,7 +201,7 @@ class TestTools:
         assert wd["units"].value == 'eV'
         assert wd["left"].value == 500
         assert wd["right"].value == 550
-        assert len(wd['gb'].children) == 36 # 9 edges displayed
+        assert len(wd['gb'].children) == 44 # 9 edges displayed
 
         wd['major'].value = True
         wd["update"]._click_handlers(wd["update"])  # refresh the table
@@ -269,3 +228,51 @@ def test_calibration_2d():
     assert s.axes_manager[1].scale == 0.5
     assert s.axes_manager[0].units == "mm"
     assert s.axes_manager[1].units == "mm"
+
+
+def test_spikes_removal_tool():
+    s = hs.signals.Signal1D(np.ones((2, 3, 30)))
+    s.add_gaussian_noise(std=1, random_state=0)
+
+    # The maximum value that we expect after removing a spikes
+    max_value_after_spike_removal = 10
+
+    # Add three spikes
+    s.data[1, 0, 1] += 40
+    s.data[0, 2, 29] += 20
+    s.data[1, 2, 14] += 100
+    wd = s.spikes_removal_tool(**KWARGS)["ipywidgets"]["wdict"]
+
+    def next():
+        wd["next_button"]._click_handlers(wd["next_button"])
+
+    def previous():
+        wd["previous_button"]._click_handlers(wd["previous_button"])
+
+    def remove():
+        wd["remove_button"]._click_handlers(wd["remove_button"])
+    wd["threshold"].value = 25
+    next()
+    assert s.axes_manager.indices == (0, 1)
+    wd["threshold"].value = 15
+    assert s.axes_manager.indices == (0, 0)
+    next()
+    assert s.axes_manager.indices == (2, 0)
+    next()
+    assert s.axes_manager.indices == (0, 1)
+    previous()
+    assert s.axes_manager.indices == (2, 0)
+    wd["add_noise"].value = False
+    remove()
+    assert s.data[0, 2, 29] < max_value_after_spike_removal
+    assert s.axes_manager.indices == (0, 1)
+    remove()
+    assert s.data[1, 0, 1] < max_value_after_spike_removal
+    assert s.axes_manager.indices == (2, 1)
+    np.random.seed(1)
+    wd["add_noise"].value = True
+    wd["spline_order"].value = 1
+    remove()
+    assert s.data[1, 2, 14] < max_value_after_spike_removal
+    # After going through the whole dataset, come back to (0, 0) position
+    assert s.axes_manager.indices == (0, 0)

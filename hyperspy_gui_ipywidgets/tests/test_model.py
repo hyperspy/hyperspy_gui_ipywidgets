@@ -1,6 +1,7 @@
 
 import numpy as np
 from numpy.random import random
+import pytest
 
 import hyperspy.api as hs
 from hyperspy.component import Component, Parameter
@@ -73,7 +74,8 @@ def test_model():
 
 
 def test_eels_component():
-    s = hs.signals.EELSSpectrum(np.empty((500,)))
+    exspy = pytest.importorskip("exspy")
+    s = exspy.signals.EELSSpectrum(np.empty((500,)))
     s.add_elements(("C",))
     s.set_microscope_parameters(100, 10, 10)
     m = s.create_model(auto_background=False)
@@ -95,7 +97,7 @@ def test_eels_component():
 
 
 def test_scalable_fixed_pattern():
-    s = hs.signals.Signal1D(np.empty((500,)))
+    s = hs.signals.Signal1D(np.ones((500,)))
     m = s.create_model()
     c = hs.model.components1D.ScalableFixedPattern(s)
     c.name = "sfp"
