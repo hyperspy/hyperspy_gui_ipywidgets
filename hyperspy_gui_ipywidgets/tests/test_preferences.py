@@ -1,18 +1,29 @@
 
-from numpy.random import random, uniform
 import ipywidgets
+from numpy.random import random, uniform
+import pytest
 
 import hyperspy.api as hs
 from hyperspy_gui_ipywidgets.tests.utils import KWARGS
 
 
-def test_preferences():
-    wd = hs.preferences.gui(**KWARGS)["ipywidgets"]["wdict"]
+module_list = [hs]
+try:
+    import exspy
+    module_list.append(exspy)
+except Exception:
+    # exspy is not installed
+    pass
+
+
+@pytest.mark.parametrize("module", module_list)
+def test_preferences(module):
+    wd = module.preferences.gui(**KWARGS)["ipywidgets"]["wdict"]
     for tabkey, tabvalue in wd.items():
         if tabkey.startswith("tab_"):
             for key, value in tabvalue.items():
                 assert getattr(
-                    getattr(hs.preferences, tabkey[4:]), key) == value.value
+                    getattr(module.preferences, tabkey[4:]), key) == value.value
                 value_bk = value.value
                 if isinstance(value, ipywidgets.Checkbox):
                     value.value = not value
@@ -26,5 +37,5 @@ def test_preferences():
                     options = set(value.options) - set(value.value)
                     value.value = options.pop()
                 assert getattr(
-                    getattr(hs.preferences, tabkey[4:]), key) == value.value
+                    getattr(module.preferences, tabkey[4:]), key) == value.value
                 value.value = value_bk

@@ -813,13 +813,6 @@ def spikes_removal_ipy(obj, **kwargs):
     remove.on_click(on_remove_clicked)
     labeled_spline_order = labelme("Spline order", spline_order)
 
-    def enable_interpolator_kind(change):
-        if change.new == "Spline":
-            for child in labeled_spline_order.children:
-                child.layout.display = ""
-        else:
-            for child in labeled_spline_order.children:
-                child.layout.display = "none"
     link((obj, "threshold"), (threshold, "value"))
     link((obj, "add_noise"), (add_noise, "value"))
     link((obj, "default_spike_width"),
