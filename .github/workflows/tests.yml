@@ -79,4 +79,4 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ always() }} && ${{ env.PYTEST_ARGS_COVERAGE }} 
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
