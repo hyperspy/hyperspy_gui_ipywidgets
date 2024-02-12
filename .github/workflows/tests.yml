@@ -80,3 +80,5 @@ jobs:
       - name: Upload coverage to Codecov
         if: ${{ always() }} && ${{ env.PYTEST_ARGS_COVERAGE }} 
         uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
