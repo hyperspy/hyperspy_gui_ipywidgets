@@ -39,7 +39,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.entry-points."hyperspy.extensions"]
-hyperspy-gui-ipywidgets = "hyperspy_gui_ipywidgets"
+hyperspy_gui_ipywidgets = "hyperspy_gui_ipywidgets"
 
 [project.license]
 file = "LICENSE"
