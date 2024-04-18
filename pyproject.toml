@@ -35,6 +35,7 @@ dependencies = [
   "hyperspy>=2.0rc0",
   "ipywidgets>=7.0",
   "link_traits",
+  "ipympl", # for convenience
 ]
 dynamic = ["version"]
 
