@@ -3,8 +3,10 @@
   See https://keepachangelog.com for details
 
 ## v2.1 (UNRELEASED)
+* Add releasing guide and release script ([#59](https://github.com/hyperspy/hyperspy_gui_traitsui/pull/59)).
+* Add `ipympl` dependency as convenience ([#58])(https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/58).
 * Fix regression with editable installation ([#55](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/55)).
-* Add `ipympl` dependency as convenience ([#58])(https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/58)
+
 
 ## v2.0 (2023-11-15)
 * Consolidate package metadata in `pyproject.toml` ([#49](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/49)).
