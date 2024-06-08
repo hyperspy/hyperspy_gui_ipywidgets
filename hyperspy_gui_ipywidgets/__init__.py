@@ -22,7 +22,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 
-__version__ = version("rosettasciio")
+__version__ = version("hyperspy_gui_ipywidgets")
 
 # For development version, `setuptools_scm` will be used at build time
 # to get the dev version, in case of missing vcs information (git archive,
