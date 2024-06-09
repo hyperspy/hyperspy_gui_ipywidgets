@@ -2,6 +2,8 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
+## v2.1.0 (UNRELEASED)
+
 ## v2.0.2 (2024-06-09)
 * Fix incorrect library version ([#64](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/64))
 
