@@ -64,10 +64,15 @@ jobs:
         run: |
           pip install git+https://github.com/hyperspy/hyperspy.git@RELEASE_next_patch
 
-      - name: Install exSpy
-        if: ${{ ! contains( matrix.LABEL, 'minimum') }}
+      - name: Install exSpy (main)
+        if: ${{ ! contains( matrix.LABEL, 'minimum') && ! contains( matrix.LABEL, 'release')}}
         run: |
           pip install git+https://github.com/hyperspy/exspy.git
+
+      - name: Install exSpy
+        if: ${{ ! contains( matrix.LABEL, 'minimum') && contains( matrix.LABEL, 'release')}}
+        run: |
+          pip install exspy
 
       - name: Install
         run: |
