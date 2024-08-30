@@ -191,7 +191,14 @@ class TestTools:
         exspy = pytest.importorskip("exspy")
         s = exspy.data.EELS_MnFe(True)
         s.plot()
-        er = exspy.signal_tools.EdgesRange(s)
+        try:
+            # exspy API from 0.3
+            # https://github.com/hyperspy/exspy/pull/59
+            from exspy import _signal_tools 
+        except ImportError:
+            from exspy import signal_tools as _signal_tools
+
+        er = _signal_tools.EdgesRange(s)
 
         er.ss_left_value = 500
         er.ss_right_value = 550
