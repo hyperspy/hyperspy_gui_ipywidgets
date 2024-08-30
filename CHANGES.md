@@ -3,6 +3,7 @@
   See https://keepachangelog.com for details
 
 ## v2.1.0 (UNRELEASED)
+* Fix test suite after `eXSpy` API changes in [hyperspy/exspy#59](https://github.com/hyperspy/exspy/pull/59) ([#69](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/69))
 
 ## v2.0.2 (2024-06-09)
 * Fix incorrect library version ([#64](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/64))
