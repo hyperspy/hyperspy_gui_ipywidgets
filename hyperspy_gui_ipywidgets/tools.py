@@ -1066,3 +1066,119 @@ def find_peaks2D_ipy(obj, **kwargs):
         "widget": box,
         "wdict": wdict,
     }
+
+
+@add_display_arg
+def remove_baseline_ipy(obj, **kwargs):
+    wdict = {}
+    algorithm = enum2dropdown(obj.traits()["algorithm"])
+    _time_per_pixel = ipywidgets.FloatText(disabled=True)
+
+    # Whittaker parameters
+    lam = ipywidgets.FloatLogSlider(min=0, max=15)
+    diff_order = ipywidgets.IntSlider(min=1, max=3)
+    p = ipywidgets.FloatSlider(min=0.0, max=1.0)
+    lam_1 = ipywidgets.FloatLogSlider(min=-10, max=0)
+    eta = ipywidgets.FloatSlider(min=0.0, max=1.0)
+    penalized_spline = ipywidgets.Checkbox()
+    # Polynomial
+    poly_order = ipywidgets.IntSlider(min=1, max=10)
+    # Splines
+    num_knots = ipywidgets.IntSlider(min=10, max=10000)
+    spline_degree = ipywidgets.IntSlider(min=1, max=5)
+    symmetric = ipywidgets.Checkbox()
+    quantile = ipywidgets.FloatSlider(min=0.001, max=0.5)
+
+    # connect
+    link((obj, "lam"), (lam, "value"))
+    link((obj, "_time_per_pixel"), (_time_per_pixel, "value"))
+    link((obj, "algorithm"), (algorithm, "value"))
+    link((obj, "_time_per_pixel"), (_time_per_pixel, "value"))
+    link((obj, "diff_order"), (diff_order, "value"))
+    link((obj, "p"), (p, "value"))
+    link((obj, "lam_1"), (lam_1, "value"))
+    link((obj, "eta"), (eta, "value"))
+    link((obj, "penalized_spline"), (penalized_spline, "value"))
+    link((obj, "poly_order"), (poly_order, "value"))
+    link((obj, "num_knots"), (num_knots, "value"))
+    link((obj, "spline_degree"), (spline_degree, "value"))
+    link((obj, "symmetric"), (symmetric, "value"))
+    link((obj, "quantile"), (quantile, "value"))
+
+    parameters_dict = {
+        "Lam": labelme("Lam", lam),
+        "diff_order": labelme("diff_order", diff_order),
+        "p": labelme("p", p),
+        "lam_1": labelme("lam_1", lam_1),
+        "eta": labelme("eta", eta),
+        "penalized_spline": labelme("penalized_spline", penalized_spline),
+        "poly_order": labelme("poly_order", poly_order),
+        "num_knots": labelme("num_knots", num_knots),
+        "spline_degree": labelme("spline_degree", spline_degree),
+        "symmetric": labelme("symmetric", symmetric),
+        "quantile": labelme("quantile", quantile),
+        }
+
+    # def update_algorithm_parameters(change):
+    #     # Remove all parameters vbox widgets
+    #     for item, value in parameters_dict.items():
+    #         value.layout.display = "none"
+    #     if change.new == "Local max":
+    #         box_local_max.layout.display = ""
+    #     elif change.new == "Max":
+    #         box_max.layout.display = ""
+    #     elif change.new == "Minmax":
+    #         box_minmax.layout.display = ""
+    #     elif change.new == "Zaefferer":
+    #         box_zaefferer.layout.display = ""
+    #     elif change.new == "Stat":
+    #         box_stat.layout.display = ""
+    #     elif change.new == "Laplacian of Gaussians":
+    #         box_log.layout.display = ""
+    #     elif change.new == "Difference of Gaussians":
+    #         box_dog.layout.display = ""
+    #     elif change.new == "Template matching":
+    #         box_xc.layout.display = ""
+
+    close = ipywidgets.Button(
+        description="Close",
+        tooltip="Close widget and remove baseline from the signal figure.")
+    apply = ipywidgets.Button(
+        description="Apply",
+        tooltip="Remove the baseline in the whole dataset.")
+
+    wdict["algorithm"] = algorithm
+    wdict["_time_per_pixel"] = _time_per_pixel
+    wdict["lam"] = lam
+    wdict["diff_order"] = diff_order
+    wdict["p"] = p
+    wdict["lam_1"] = lam_1
+    wdict["eta"] = eta
+    wdict["penalized_spline"] = penalized_spline
+    wdict["poly_order"] = poly_order
+    wdict["num_knots"] = num_knots
+    wdict["spline_degree"] = spline_degree
+    wdict["symmetric"] = symmetric
+    wdict["quantile"] = quantile
+    wdict["apply"] = apply
+
+    box = ipywidgets.VBox(
+        [labelme("Algorithm", algorithm), labelme("Time per pixel (ms)", _time_per_pixel)]
+        + list(parameters_dict.values())
+        + [ipywidgets.HBox((apply, close))]
+    )
+
+    def on_apply_clicked(b):
+        obj.apply()
+        box.close()
+    apply.on_click(on_apply_clicked)
+
+    def on_close_clicked(b):
+        obj.close()
+        box.close()
+    close.on_click(on_close_clicked)
+
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
