@@ -8,6 +8,7 @@ from hyperspy.signal_tools import (
     Signal2DCalibration,
     ImageContrastEditor,
 )
+from hyperspy.utils.baseline_removal_tool import BaselineRemoval
 
 
 class TestTools:
@@ -283,3 +284,19 @@ def test_spikes_removal_tool():
     assert s.data[1, 2, 14] < max_value_after_spike_removal
     # After going through the whole dataset, come back to (0, 0) position
     assert s.axes_manager.indices == (0, 0)
+
+
+def test_remove_baseline():
+    pytest.importorskip("pybaselines")
+    s = hs.data.two_gaussians().inav[:5, :5]
+    s.plot()
+
+    br = BaselineRemoval(s)
+    wd = br.gui(**KWARGS)["ipywidgets"]["wdict"]
+    br.algorithm = "Asymmetric Least Squares"
+    assert wd["algorithm"].value == "Asymmetric Least Squares"
+    br.algorithm = "Adaptive Smoothness Penalized Least Squares"
+    br.lam = 1e7
+    assert wd["lam"].value == 1e7
+    br.apply()
+    assert s.isig[:10].data.mean() < 5
