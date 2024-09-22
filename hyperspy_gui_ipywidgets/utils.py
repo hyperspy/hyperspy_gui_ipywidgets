@@ -46,9 +46,9 @@ def get_label(trait, label):
     return label
 
 
-def enum2dropdown(trait, description=None):
+def enum2dropdown(trait, description=None, **kwargs):
     widget = ipywidgets.Dropdown(
-        options=trait.trait_type.values)
+        options=trait.trait_type.values, **kwargs)
     if description is not None:
         description_tooltip = trait.desc if trait.desc else ""
         widget.description = description

@@ -2,8 +2,11 @@ import ipywidgets
 import traits.api as t
 
 from link_traits import link
-from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
-                                   IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
+from hyperspy.signal_tools import (
+    SPIKES_REMOVAL_INSTRUCTIONS,
+    IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS
+    )
+from hyperspy.utils.baseline_removal_tool import PARAMETERS_ALGORITHMS
 
 from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg, set_title_container)
@@ -1071,23 +1074,27 @@ def find_peaks2D_ipy(obj, **kwargs):
 @add_display_arg
 def remove_baseline_ipy(obj, **kwargs):
     wdict = {}
-    algorithm = enum2dropdown(obj.traits()["algorithm"])
-    _time_per_pixel = ipywidgets.FloatText(disabled=True)
+    w_kwargs = dict(style={'description_width': '150px'}, layout={'width': '500px'})
+    algorithm = enum2dropdown(obj.traits()["algorithm"], description="Method", **w_kwargs)
+    # `readout_format` not implemented for `FloatText`
+    _time_per_pixel = ipywidgets.FloatText(
+        disabled=True, description="Time per pixel (ms)", **w_kwargs
+        )
 
     # Whittaker parameters
-    lam = ipywidgets.FloatLogSlider(min=0, max=15)
-    diff_order = ipywidgets.IntSlider(min=1, max=3)
-    p = ipywidgets.FloatSlider(min=0.0, max=1.0)
-    lam_1 = ipywidgets.FloatLogSlider(min=-10, max=0)
-    eta = ipywidgets.FloatSlider(min=0.0, max=1.0)
-    penalized_spline = ipywidgets.Checkbox()
+    lam = ipywidgets.FloatLogSlider(min=0, max=15, description="lam", **w_kwargs)
+    diff_order = ipywidgets.IntSlider(min=1, max=3, description="diff_order", **w_kwargs)
+    p = ipywidgets.FloatSlider(min=0.0, max=1.0, description="p", **w_kwargs)
+    lam_1 = ipywidgets.FloatLogSlider(min=-10, max=0, description="lam_1", **w_kwargs)
+    eta = ipywidgets.FloatSlider(min=0.0, max=1.0, description="eta", **w_kwargs)
+    penalized_spline = ipywidgets.Checkbox(description="penalized_spline", **w_kwargs)
     # Polynomial
-    poly_order = ipywidgets.IntSlider(min=1, max=10)
+    poly_order = ipywidgets.IntSlider(min=1, max=10, description="poly_order", **w_kwargs)
     # Splines
-    num_knots = ipywidgets.IntSlider(min=10, max=10000)
-    spline_degree = ipywidgets.IntSlider(min=1, max=5)
-    symmetric = ipywidgets.Checkbox()
-    quantile = ipywidgets.FloatSlider(min=0.001, max=0.5)
+    num_knots = ipywidgets.IntSlider(min=10, max=10000, description="num_knots", **w_kwargs)
+    spline_degree = ipywidgets.IntSlider(min=1, max=5, description="spline_degree", **w_kwargs)
+    symmetric = ipywidgets.Checkbox(description="symmetric", **w_kwargs)
+    quantile = ipywidgets.FloatSlider(min=0.001, max=0.5, description="quantile", **w_kwargs)
 
     # connect
     link((obj, "lam"), (lam, "value"))
@@ -1105,40 +1112,42 @@ def remove_baseline_ipy(obj, **kwargs):
     link((obj, "symmetric"), (symmetric, "value"))
     link((obj, "quantile"), (quantile, "value"))
 
-    parameters_dict = {
-        "Lam": labelme("Lam", lam),
-        "diff_order": labelme("diff_order", diff_order),
-        "p": labelme("p", p),
-        "lam_1": labelme("lam_1", lam_1),
-        "eta": labelme("eta", eta),
-        "penalized_spline": labelme("penalized_spline", penalized_spline),
-        "poly_order": labelme("poly_order", poly_order),
-        "num_knots": labelme("num_knots", num_knots),
-        "spline_degree": labelme("spline_degree", spline_degree),
-        "symmetric": labelme("symmetric", symmetric),
-        "quantile": labelme("quantile", quantile),
+    parameters_widget_dict = {
+        "lam": lam,
+        "diff_order": diff_order,
+        "p": p,
+        "lam_1": lam_1,
+        "eta": eta,
+        "penalized_spline": penalized_spline,
+        "poly_order": poly_order,
+        "num_knots": num_knots,
+        "spline_degree": spline_degree,
+        "symmetric": symmetric,
+        "quantile": quantile,
         }
 
-    # def update_algorithm_parameters(change):
-    #     # Remove all parameters vbox widgets
-    #     for item, value in parameters_dict.items():
-    #         value.layout.display = "none"
-    #     if change.new == "Local max":
-    #         box_local_max.layout.display = ""
-    #     elif change.new == "Max":
-    #         box_max.layout.display = ""
-    #     elif change.new == "Minmax":
-    #         box_minmax.layout.display = ""
-    #     elif change.new == "Zaefferer":
-    #         box_zaefferer.layout.display = ""
-    #     elif change.new == "Stat":
-    #         box_stat.layout.display = ""
-    #     elif change.new == "Laplacian of Gaussians":
-    #         box_log.layout.display = ""
-    #     elif change.new == "Difference of Gaussians":
-    #         box_dog.layout.display = ""
-    #     elif change.new == "Template matching":
-    #         box_xc.layout.display = ""
+    def update_algorithm_parameters(change):
+        # Remove all parameters vbox widgets
+        for parameter_widget in parameters_widget_dict.values():
+            parameter_widget.layout.display = "none"
+
+        for parameter_name, parameter_widget in parameters_widget_dict.items():
+            # Special case spline parameters
+            if parameter_name == "penalized_spline":
+                # For Whittaker method, display spline parameters when it is checked
+                if penalized_spline.value:
+                    parameters_widget_dict["num_knots"].layout.display = ""
+                    parameters_widget_dict["spline_degree"].layout.display = ""
+            elif change.new in PARAMETERS_ALGORITHMS[parameter_name]:
+                parameter_widget.layout.display = ""
+
+    algorithm.observe(update_algorithm_parameters, "value")
+
+    # For initialisation, trigger the function that controls the visibility
+    # as setting the default value doesn't trigger it.
+    class Dummy:
+        new = algorithm.value
+    update_algorithm_parameters(change=Dummy())
 
     close = ipywidgets.Button(
         description="Close",
@@ -1146,6 +1155,12 @@ def remove_baseline_ipy(obj, **kwargs):
     apply = ipywidgets.Button(
         description="Apply",
         tooltip="Remove the baseline in the whole dataset.")
+
+    method_parameters = ipywidgets.Accordion(
+        (ipywidgets.VBox([value for value in parameters_widget_dict.values()]), ),
+        selected_index=0,
+        )
+    set_title_container(method_parameters, ["Method parameters"])
 
     wdict["algorithm"] = algorithm
     wdict["_time_per_pixel"] = _time_per_pixel
@@ -1163,9 +1178,7 @@ def remove_baseline_ipy(obj, **kwargs):
     wdict["apply"] = apply
 
     box = ipywidgets.VBox(
-        [labelme("Algorithm", algorithm), labelme("Time per pixel (ms)", _time_per_pixel)]
-        + list(parameters_dict.values())
-        + [ipywidgets.HBox((apply, close))]
+        [algorithm, _time_per_pixel, method_parameters, ipywidgets.HBox((apply, close))]
     )
 
     def on_apply_clicked(b):
