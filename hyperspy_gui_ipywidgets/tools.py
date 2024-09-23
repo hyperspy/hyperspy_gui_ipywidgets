@@ -1090,11 +1090,19 @@ def remove_baseline_ipy(obj, **kwargs):
     penalized_spline = ipywidgets.Checkbox(description="penalized_spline", **w_kwargs)
     # Polynomial
     poly_order = ipywidgets.IntSlider(min=1, max=10, description="poly_order", **w_kwargs)
+    peak_ratio = ipywidgets.FloatSlider(min=0.0, max=1.0, description="peak_ratio", **w_kwargs)
     # Splines
     num_knots = ipywidgets.IntSlider(min=10, max=10000, description="num_knots", **w_kwargs)
     spline_degree = ipywidgets.IntSlider(min=1, max=5, description="spline_degree", **w_kwargs)
     symmetric = ipywidgets.Checkbox(description="symmetric", **w_kwargs)
     quantile = ipywidgets.FloatSlider(min=0.001, max=0.5, description="quantile", **w_kwargs)
+    # Classification
+    smooth_half_window = ipywidgets.IntSlider(min=1, max=100, description="smooth_half_window", **w_kwargs)
+    num_std = ipywidgets.IntSlider(min=1, max=100, description="num_std", **w_kwargs)
+    interp_half_window = ipywidgets.IntSlider(min=1, max=100, description="interp_half_window", **w_kwargs)
+    half_window = ipywidgets.IntSlider(min=1, max=100, description="half_window", **w_kwargs)
+    section = ipywidgets.IntSlider(min=1, max=100, description="section", **w_kwargs)
+    segments = ipywidgets.IntSlider(min=1, max=100, description="segments", **w_kwargs)
 
     # connect
     link((obj, "lam"), (lam, "value"))
@@ -1107,10 +1115,17 @@ def remove_baseline_ipy(obj, **kwargs):
     link((obj, "eta"), (eta, "value"))
     link((obj, "penalized_spline"), (penalized_spline, "value"))
     link((obj, "poly_order"), (poly_order, "value"))
+    link((obj, "peak_ratio"), (peak_ratio, "value"))
     link((obj, "num_knots"), (num_knots, "value"))
     link((obj, "spline_degree"), (spline_degree, "value"))
     link((obj, "symmetric"), (symmetric, "value"))
     link((obj, "quantile"), (quantile, "value"))
+    link((obj, "smooth_half_window"), (smooth_half_window, "value"))
+    link((obj, "num_std"), (num_std, "value"))
+    link((obj, "interp_half_window"), (interp_half_window, "value"))
+    link((obj, "half_window"), (half_window, "value"))
+    link((obj, "section"), (section, "value"))
+    link((obj, "segments"), (segments, "value"))
 
     parameters_widget_dict = {
         "lam": lam,
@@ -1120,10 +1135,17 @@ def remove_baseline_ipy(obj, **kwargs):
         "eta": eta,
         "penalized_spline": penalized_spline,
         "poly_order": poly_order,
+        "peak_ratio": peak_ratio,
         "num_knots": num_knots,
         "spline_degree": spline_degree,
         "symmetric": symmetric,
         "quantile": quantile,
+        "smooth_half_window": smooth_half_window,
+        "num_std": num_std,
+        "interp_half_window": interp_half_window,
+        "half_window": half_window,
+        "section": section,
+        "segments": segments,
         }
 
     def update_algorithm_parameters(change):
@@ -1171,10 +1193,17 @@ def remove_baseline_ipy(obj, **kwargs):
     wdict["eta"] = eta
     wdict["penalized_spline"] = penalized_spline
     wdict["poly_order"] = poly_order
+    wdict["peak_ratio"] = peak_ratio
     wdict["num_knots"] = num_knots
     wdict["spline_degree"] = spline_degree
     wdict["symmetric"] = symmetric
     wdict["quantile"] = quantile
+    wdict["smooth_half_window"] = smooth_half_window
+    wdict["num_std"] = num_std
+    wdict["interp_half_window"] = interp_half_window
+    wdict["half_window"] = half_window
+    wdict["section"] = section
+    wdict["segments"] = segments
     wdict["apply"] = apply
 
     box = ipywidgets.VBox(
