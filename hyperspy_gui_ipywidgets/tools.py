@@ -1128,18 +1128,22 @@ def remove_baseline_ipy(obj, **kwargs):
     link((obj, "segments"), (segments, "value"))
 
     parameters_widget_dict = {
+        # Whittaker parameters
         "lam": lam,
         "diff_order": diff_order,
         "p": p,
         "lam_1": lam_1,
         "eta": eta,
         "penalized_spline": penalized_spline,
+        # Polynomial parameters
         "poly_order": poly_order,
         "peak_ratio": peak_ratio,
+        # Splines parameters
         "num_knots": num_knots,
         "spline_degree": spline_degree,
         "symmetric": symmetric,
         "quantile": quantile,
+        # Classification
         "smooth_half_window": smooth_half_window,
         "num_std": num_std,
         "interp_half_window": interp_half_window,
@@ -1150,18 +1154,12 @@ def remove_baseline_ipy(obj, **kwargs):
 
     def update_algorithm_parameters(change):
         # Remove all parameters vbox widgets
-        for parameter_widget in parameters_widget_dict.values():
-            parameter_widget.layout.display = "none"
-
         for parameter_name, parameter_widget in parameters_widget_dict.items():
-            # Special case spline parameters
-            if parameter_name == "penalized_spline":
-                # For Whittaker method, display spline parameters when it is checked
-                if penalized_spline.value:
-                    parameters_widget_dict["num_knots"].layout.display = ""
-                    parameters_widget_dict["spline_degree"].layout.display = ""
-            elif change.new in PARAMETERS_ALGORITHMS[parameter_name]:
+            if getattr(obj, f"_enable_{parameter_name}"):
+                # if enabled, display the widget
                 parameter_widget.layout.display = ""
+            else:
+                parameter_widget.layout.display = "none"
 
     algorithm.observe(update_algorithm_parameters, "value")
 
