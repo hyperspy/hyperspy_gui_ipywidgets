@@ -2,8 +2,11 @@ import ipywidgets
 import traits.api as t
 
 from link_traits import link
-from hyperspy.signal_tools import (SPIKES_REMOVAL_INSTRUCTIONS,
-                                   IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS)
+from hyperspy.signal_tools import (
+    SPIKES_REMOVAL_INSTRUCTIONS,
+    IMAGE_CONTRAST_EDITOR_HELP_IPYWIDGETS
+    )
+from hyperspy.utils.baseline_removal_tool import PARAMETERS_ALGORITHMS
 
 from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
         add_display_arg, set_title_container)
@@ -1062,6 +1065,159 @@ def find_peaks2D_ipy(obj, **kwargs):
         obj.close()
         box.close()
     close.on_click(on_close_clicked)
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
+
+
+@add_display_arg
+def remove_baseline_ipy(obj, **kwargs):
+    wdict = {}
+    w_kwargs = dict(style={'description_width': '150px'}, layout={'width': '500px'})
+    algorithm = enum2dropdown(obj.traits()["algorithm"], description="Method", **w_kwargs)
+    # `readout_format` not implemented for `FloatText`
+    _time_per_pixel = ipywidgets.FloatText(
+        disabled=True, description="Time per pixel (ms)", **w_kwargs
+        )
+
+    # Whittaker parameters
+    lam = ipywidgets.FloatLogSlider(min=0, max=15, description="lam", **w_kwargs)
+    diff_order = ipywidgets.IntSlider(min=1, max=3, description="diff_order", **w_kwargs)
+    p = ipywidgets.FloatSlider(min=0.0, max=1.0, description="p", **w_kwargs)
+    lam_1 = ipywidgets.FloatLogSlider(min=-10, max=0, description="lam_1", **w_kwargs)
+    eta = ipywidgets.FloatSlider(min=0.0, max=1.0, description="eta", **w_kwargs)
+    penalized_spline = ipywidgets.Checkbox(description="penalized_spline", **w_kwargs)
+    # Polynomial
+    poly_order = ipywidgets.IntSlider(min=1, max=10, description="poly_order", **w_kwargs)
+    peak_ratio = ipywidgets.FloatSlider(min=0.0, max=1.0, description="peak_ratio", **w_kwargs)
+    # Splines
+    num_knots = ipywidgets.IntSlider(min=10, max=10000, description="num_knots", **w_kwargs)
+    spline_degree = ipywidgets.IntSlider(min=1, max=5, description="spline_degree", **w_kwargs)
+    symmetric = ipywidgets.Checkbox(description="symmetric", **w_kwargs)
+    quantile = ipywidgets.FloatSlider(min=0.001, max=0.5, description="quantile", **w_kwargs)
+    # Classification
+    smooth_half_window = ipywidgets.IntSlider(min=1, max=100, description="smooth_half_window", **w_kwargs)
+    num_std = ipywidgets.IntSlider(min=1, max=100, description="num_std", **w_kwargs)
+    interp_half_window = ipywidgets.IntSlider(min=1, max=100, description="interp_half_window", **w_kwargs)
+    half_window = ipywidgets.IntSlider(min=1, max=100, description="half_window", **w_kwargs)
+    section = ipywidgets.IntSlider(min=1, max=100, description="section", **w_kwargs)
+    segments = ipywidgets.IntSlider(min=1, max=100, description="segments", **w_kwargs)
+
+    # connect
+    link((obj, "lam"), (lam, "value"))
+    link((obj, "_time_per_pixel"), (_time_per_pixel, "value"))
+    link((obj, "algorithm"), (algorithm, "value"))
+    link((obj, "_time_per_pixel"), (_time_per_pixel, "value"))
+    link((obj, "diff_order"), (diff_order, "value"))
+    link((obj, "p"), (p, "value"))
+    link((obj, "lam_1"), (lam_1, "value"))
+    link((obj, "eta"), (eta, "value"))
+    link((obj, "penalized_spline"), (penalized_spline, "value"))
+    link((obj, "poly_order"), (poly_order, "value"))
+    link((obj, "peak_ratio"), (peak_ratio, "value"))
+    link((obj, "num_knots"), (num_knots, "value"))
+    link((obj, "spline_degree"), (spline_degree, "value"))
+    link((obj, "symmetric"), (symmetric, "value"))
+    link((obj, "quantile"), (quantile, "value"))
+    link((obj, "smooth_half_window"), (smooth_half_window, "value"))
+    link((obj, "num_std"), (num_std, "value"))
+    link((obj, "interp_half_window"), (interp_half_window, "value"))
+    link((obj, "half_window"), (half_window, "value"))
+    link((obj, "section"), (section, "value"))
+    link((obj, "segments"), (segments, "value"))
+
+    parameters_widget_dict = {
+        # Whittaker parameters
+        "lam": lam,
+        "diff_order": diff_order,
+        "p": p,
+        "lam_1": lam_1,
+        "eta": eta,
+        "penalized_spline": penalized_spline,
+        # Polynomial parameters
+        "poly_order": poly_order,
+        "peak_ratio": peak_ratio,
+        # Splines parameters
+        "num_knots": num_knots,
+        "spline_degree": spline_degree,
+        "symmetric": symmetric,
+        "quantile": quantile,
+        # Classification
+        "smooth_half_window": smooth_half_window,
+        "num_std": num_std,
+        "interp_half_window": interp_half_window,
+        "half_window": half_window,
+        "section": section,
+        "segments": segments,
+        }
+
+    def update_algorithm_parameters(change):
+        # Remove all parameters vbox widgets
+        for parameter_name, parameter_widget in parameters_widget_dict.items():
+            if getattr(obj, f"_enable_{parameter_name}"):
+                # if enabled, display the widget
+                parameter_widget.layout.display = ""
+            else:
+                parameter_widget.layout.display = "none"
+
+    algorithm.observe(update_algorithm_parameters, "value")
+
+    # For initialisation, trigger the function that controls the visibility
+    # as setting the default value doesn't trigger it.
+    class Dummy:
+        new = algorithm.value
+    update_algorithm_parameters(change=Dummy())
+
+    close = ipywidgets.Button(
+        description="Close",
+        tooltip="Close widget and remove baseline from the signal figure.")
+    apply = ipywidgets.Button(
+        description="Apply",
+        tooltip="Remove the baseline in the whole dataset.")
+
+    method_parameters = ipywidgets.Accordion(
+        (ipywidgets.VBox([value for value in parameters_widget_dict.values()]), ),
+        selected_index=0,
+        )
+    set_title_container(method_parameters, ["Method parameters"])
+
+    wdict["algorithm"] = algorithm
+    wdict["_time_per_pixel"] = _time_per_pixel
+    wdict["lam"] = lam
+    wdict["diff_order"] = diff_order
+    wdict["p"] = p
+    wdict["lam_1"] = lam_1
+    wdict["eta"] = eta
+    wdict["penalized_spline"] = penalized_spline
+    wdict["poly_order"] = poly_order
+    wdict["peak_ratio"] = peak_ratio
+    wdict["num_knots"] = num_knots
+    wdict["spline_degree"] = spline_degree
+    wdict["symmetric"] = symmetric
+    wdict["quantile"] = quantile
+    wdict["smooth_half_window"] = smooth_half_window
+    wdict["num_std"] = num_std
+    wdict["interp_half_window"] = interp_half_window
+    wdict["half_window"] = half_window
+    wdict["section"] = section
+    wdict["segments"] = segments
+    wdict["apply"] = apply
+
+    box = ipywidgets.VBox(
+        [algorithm, _time_per_pixel, method_parameters, ipywidgets.HBox((apply, close))]
+    )
+
+    def on_apply_clicked(b):
+        obj.apply()
+        box.close()
+    apply.on_click(on_apply_clicked)
+
+    def on_close_clicked(b):
+        obj.close()
+        box.close()
+    close.on_click(on_close_clicked)
+
     return {
         "widget": box,
         "wdict": wdict,
