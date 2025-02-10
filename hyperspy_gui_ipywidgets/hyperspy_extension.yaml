@@ -55,6 +55,9 @@ GUI:
       hyperspy.Signal1D.remove_background:
         module: hyperspy_gui_ipywidgets.tools
         function: remove_background_ipy
+      hyperspy.Signal1D.remove_baseline:
+        module: hyperspy_gui_ipywidgets.tools
+        function: remove_baseline_ipy
       hyperspy.Signal1D.spikes_removal_tool:
         module: hyperspy_gui_ipywidgets.tools
         function: spikes_removal_ipy
