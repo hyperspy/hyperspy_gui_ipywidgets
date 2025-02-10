@@ -15,17 +15,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ['3.9', '3.10', '3.11']
+        PYTHON_VERSION: ['3.10', '3.11', '3.13']
         LABEL: [-release, -RnM]
         PIP_ARGS: [""]
         include:
-          - PYTHON_VERSION: '3.8'
+          - PYTHON_VERSION: '3.12'
             PIP_ARGS: --pre
             LABEL: -pre_release-RnM
           - PYTHON_VERSION: '3.12'
-            LABEL: -minimum
+            LABEL: -release-minimum
           - PYTHON_VERSION: '3.12'
-            LABEL: -RnM
+            LABEL: -RnM-minimum
+          - PYTHON_VERSION: '3.9'
+            LABEL: -release-oldest
+            # Matching pyproject.toml
+            DEPENDENCIES: hyperspy==2.0 ipywidgets==7.0
 
     steps:
       - uses: actions/checkout@v4
@@ -77,6 +81,11 @@ jobs:
       - name: Install
         run: |
           pip install ${{ matrix.PIP_ARGS }} .'${{ env.PIP_SELECTOR }}'
+
+      - name: Install oldest supported version
+        if: contains( matrix.LABEL, 'oldest')
+        run: |
+          pip install ${{ matrix.DEPENDENCIES }}
 
       - name: Run test suite
         run: |
