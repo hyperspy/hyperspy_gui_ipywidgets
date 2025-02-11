@@ -16,18 +16,20 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ['3.10', '3.11', '3.13']
-        LABEL: [-release, -RnM]
+        LABEL: [-release, -dev]
         PIP_ARGS: [""]
         include:
           - PYTHON_VERSION: '3.12'
             PIP_ARGS: --pre
-            LABEL: -pre_release-RnM
+            LABEL: -dev-pre_release
           - PYTHON_VERSION: '3.12'
             LABEL: -release-minimum
           - PYTHON_VERSION: '3.12'
-            LABEL: -RnM-minimum
+            LABEL: -dev-minimum
           - PYTHON_VERSION: '3.9'
-            LABEL: -release-oldest
+            LABEL: -release
+          - PYTHON_VERSION: '3.9'
+            LABEL: -dev-oldest
             # Matching pyproject.toml
             DEPENDENCIES: hyperspy==2.0 ipywidgets==7.0
 
@@ -58,25 +60,15 @@ jobs:
           python --version
           pip --version
 
-      - name: Install HyperSpy (RELEASE_next_minor)
-        if: contains( matrix.LABEL, 'RnM')
+      - name: Install HyperSpy (dev)
+        if: contains( matrix.LABEL, 'dev')
         run: |
           pip install git+https://github.com/hyperspy/hyperspy.git@RELEASE_next_minor
 
-      - name: Install HyperSpy (RELEASE_next_patch)
-        if: contains( matrix.LABEL, 'RnP')
-        run: |
-          pip install git+https://github.com/hyperspy/hyperspy.git@RELEASE_next_patch
-
-      - name: Install exSpy (main)
-        if: ${{ ! contains( matrix.LABEL, 'minimum') && ! contains( matrix.LABEL, 'release')}}
+      - name: Install exSpy (dev)
+        if: contains( matrix.LABEL, 'dev')
         run: |
           pip install git+https://github.com/hyperspy/exspy.git
-
-      - name: Install exSpy
-        if: ${{ ! contains( matrix.LABEL, 'minimum') && contains( matrix.LABEL, 'release')}}
-        run: |
-          pip install exspy
 
       - name: Install
         run: |
