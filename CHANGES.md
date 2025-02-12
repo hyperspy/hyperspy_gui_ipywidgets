@@ -4,6 +4,10 @@
 
 ## v2.1.0 (UNRELEASED)
 
+* Add widgets for `Signal1D.remove_baselines` ([#70](https://github.com/hyperspy/hyperspy_gui_traitsui/pull/70)).
+* Add support for python 3.13; drop support for python 3.8 ([#77](https://github.com/hyperspy/hyperspy_gui_traitsui/pull/77)).
+
+
 ## v2.0.3 (2024-10-11)
 * Fix test suite after `eXSpy` API changes in [hyperspy/exspy#59](https://github.com/hyperspy/exspy/pull/59) ([#69](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/69))
 
