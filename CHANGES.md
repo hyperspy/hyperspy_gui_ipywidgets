@@ -2,6 +2,8 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
+## v2.2.0 (UNRELEASED)
+
 ## v2.1.0 (2025-03-02)
 
 * Add widgets for `Signal1D.remove_baselines` ([#70](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/70)).
