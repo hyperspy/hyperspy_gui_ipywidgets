@@ -29,9 +29,9 @@ jobs:
           - PYTHON_VERSION: '3.9'
             LABEL: -release
           - PYTHON_VERSION: '3.9'
-            LABEL: -dev-oldest
+            LABEL: -oldest
             # Matching pyproject.toml
-            DEPENDENCIES: hyperspy==2.0 ipywidgets==7.0
+            DEPENDENCIES: hyperspy==2.3.0 ipywidgets==7.0
 
     steps:
       - uses: actions/checkout@v4
