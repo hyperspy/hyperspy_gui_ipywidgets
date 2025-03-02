@@ -2,10 +2,12 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
-## v2.1.0 (UNRELEASED)
+## v2.2.0 (UNRELEASED)
 
-* Add widgets for `Signal1D.remove_baselines` ([#70](https://github.com/hyperspy/hyperspy_gui_traitsui/pull/70)).
-* Add support for python 3.13; drop support for python 3.8 ([#77](https://github.com/hyperspy/hyperspy_gui_traitsui/pull/77)).
+## v2.1.0 (2025-03-02)
+
+* Add widgets for `Signal1D.remove_baselines` ([#70](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/70)).
+* Add support for python 3.13; drop support for python 3.8 ([#77](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/77)).
 
 
 ## v2.0.3 (2024-10-11)
