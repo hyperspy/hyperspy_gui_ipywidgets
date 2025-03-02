@@ -33,7 +33,7 @@ classifiers = [
 ]
 dependencies = [
   "hyperspy>=2.3.0",
-  "ipywidgets>=7.0",
+  "ipywidgets>=8.0",
   "link_traits",
   "ipympl", # for convenience
 ]
