@@ -51,7 +51,7 @@ class TestTools:
 
     def test_smooth_sg(self):
         s = self.s
-        s.add_gaussian_noise(0.1)
+        s.add_gaussian_noise(0.1, random_state=0)
         s2 = s.deepcopy()
         wd = s.smooth_savitzky_golay(**KWARGS)["ipywidgets"]["wdict"]
         wd["window_length"].value = 11
@@ -65,7 +65,7 @@ class TestTools:
 
     def test_smooth_lowess(self):
         s = self.s
-        s.add_gaussian_noise(0.1)
+        s.add_gaussian_noise(0.1, random_state=0)
         s2 = s.deepcopy()
         wd = s.smooth_lowess(**KWARGS)["ipywidgets"]["wdict"]
         wd["smoothing_parameter"].value = 0.9
@@ -77,7 +77,7 @@ class TestTools:
 
     def test_smooth_tv(self):
         s = self.s
-        s.add_gaussian_noise(0.1)
+        s.add_gaussian_noise(0.1, random_state=0)
         s2 = s.deepcopy()
         wd = s.smooth_tv(**KWARGS)["ipywidgets"]["wdict"]
         wd["smoothing_parameter"].value = 300
@@ -88,7 +88,7 @@ class TestTools:
 
     def test_filter_butterworth(self):
         s = self.s
-        s.add_gaussian_noise(0.1)
+        s.add_gaussian_noise(0.1, random_state=0)
         s2 = s.deepcopy()
         wd = s.filter_butterworth(**KWARGS)["ipywidgets"]["wdict"]
         wd["cutoff"].value = 0.5
@@ -104,7 +104,7 @@ class TestTools:
 
     def test_remove_background(self):
         s = self.s
-        s.add_gaussian_noise(0.1)
+        s.add_gaussian_noise(0.1, random_state=0)
         s2 = s.remove_background(
             signal_range=(15., 50.),
             background_type='Polynomial',
@@ -121,7 +121,7 @@ class TestTools:
         wd["left"].value = 15.
         wd["right"].value = 50.
         wd["apply_button"]._click_handlers(wd["apply_button"])    # Trigger it
-        np.testing.assert_allclose(s.data[2:], s2.data[2:], atol=1E-5)
+        np.testing.assert_allclose(s.data[2:], s2.data[2:], rtol=1E-5)
         np.testing.assert_allclose(np.zeros(2), s2.data[:2])
 
     def test_constrast_editor(self):
