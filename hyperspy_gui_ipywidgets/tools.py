@@ -8,8 +8,15 @@ from hyperspy.signal_tools import (
     )
 from hyperspy.utils.baseline_removal_tool import PARAMETERS_ALGORITHMS
 
-from hyperspy_gui_ipywidgets.utils import (labelme, enum2dropdown,
-        add_display_arg, set_title_container)
+from hyperspy_gui_ipywidgets.utils import (
+    add_display_arg,
+    debounce,
+    enum2dropdown,
+    float2floattext,
+    labelme,
+    labelme_sandwich,
+    set_title_container,
+    )
 from hyperspy_gui_ipywidgets.custom_widgets import OddIntSlider
 from hyperspy_gui_ipywidgets.axes import get_ipy_navigation_sliders
 
@@ -361,6 +368,139 @@ def print_edges_table_ipy(obj, **kwargs):
         "widget": box,
         "wdict": wdict,
     }
+
+@add_display_arg
+def print_lines_table_ipy(obj, **kwargs):    
+    max_width = '400px'
+    # Define widgets
+    wdict = {}
+    position = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '50px'})
+    width = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '50px'})
+    only_lines = enum2dropdown(obj.traits()["only_lines"], layout={'width': '50px'})
+    gb = ipywidgets.GridBox(
+        layout=ipywidgets.Layout(
+            grid_template_columns='75px 50px 100px 75px 100px',
+            grid_template_rows='auto',
+            padding='0px',
+            margin='0px',
+            gap='0px',
+            width=max_width,
+        )
+    )
+    update = ipywidgets.Button(description='Refresh table', layout={'width': 'initial'})
+    help_text = ipywidgets.HTML(
+        "Move the vertical line to select a signal range. "
+        "Select X-ray lines in the table to show their positions "
+        "on the signal."
+    )
+    help = ipywidgets.Accordion(children=[help_text], selected_index=None)
+    set_title_container(help, ["Help"])
+    close = ipywidgets.Button(description="Close", tooltip="Close the widget.")
+
+    entry = '<p style="text-align: center; padding: 0px; margin: 0px">{}</p>'
+    entry_left = '<p style="text-align: left; padding: 0px; margin: 0px">{}</p>'
+
+    header_kwargs = dict(
+        layout=ipywidgets.Layout(
+            border_bottom ='1px solid grey',
+            padding='0px',
+            margin='0px',
+            align_items='center',
+            justify_content='center',
+        ),
+        style=dict(font_weight='bold')
+    )
+
+    wdict["position"] = position
+    wdict["width"] = width
+    wdict["only_lines"] = only_lines
+    wdict["gb"] = gb
+    wdict["help"] = help
+    wdict["update"] = update
+    wdict["close"] = close
+
+    # Connect
+    link((obj, "position"), (position, "value"))
+    link((obj, "width"), (width, "value"))
+    link((obj, "only_lines"), (only_lines, "value"))
+
+    # header
+    header_items = [
+        ipywidgets.Label("Element", **header_kwargs),
+        ipywidgets.Label("Line", **header_kwargs),
+        ipywidgets.Label("Energy (keV)", **header_kwargs),
+        ipywidgets.Label("Weight", **header_kwargs),
+        ipywidgets.Label("Intensity", **header_kwargs)
+    ]
+
+    def update_active_elements(change):
+        element = change['owner'].description
+        initial_length = len(obj.active_elements)
+        if change['new']:
+            obj.active_elements.add(element)
+        else:
+            if element in obj.active_elements:
+                obj.active_elements.remove(element)
+        if len(obj.active_elements) != initial_length:
+            obj.update_markers()
+
+    # @debounce(0.2)
+    def update_table(change):
+        lines_information = obj.get_lines_information()
+
+        items = header_items.copy()
+        
+        if lines_information is not None:
+            # rows
+            for element_str in lines_information.keys():
+                element = lines_information[element_str]
+                for line in element.keys():
+                    line_info = element[line]
+                    # element_widget = ipywidgets.HTML(entry.format(str(element_str)))
+                    element_widget = ipywidgets.ToggleButton(description=element_str, layout={'width': '75px'})
+                    element_widget.observe(update_active_elements, names='value')
+                    line_widget = ipywidgets.HTML(entry.format(str(line)))
+                    energy_widget = ipywidgets.HTML(entry.format(f"{line_info['energy (keV)']:.2f}"))
+                    weight_widget = ipywidgets.HTML(entry.format(f"{line_info['weight']:.2f}"))
+                    intensity_widget = ipywidgets.HTML(entry_left.format(line_info['intensity']))
+                    items.extend([element_widget, line_widget, energy_widget, weight_widget, intensity_widget])
+
+        gb.children = items
+
+    position.observe(update_table)
+    width.observe(update_table)
+    only_lines.observe(update_table)
+    update.on_click(update_table)
+
+    def on_close_clicked(b):
+        obj.on = False
+        box.close()
+    close.on_click(on_close_clicked)
+
+    energy_box = ipywidgets.HBox(
+        [
+            labelme_sandwich("Position", position, obj.units),
+            labelme_sandwich("Width", width, obj.units),
+            labelme("Only lines", only_lines)
+        ],
+        layout=ipywidgets.Layout(justify_content='space-around', width=max_width)
+    )
+
+    box = ipywidgets.VBox(
+        [
+            energy_box,
+            gb,
+            help,
+            ipywidgets.HBox([update, close]),
+        ],
+        layout=ipywidgets.Layout(justify_content='space-around', width=max_width)
+    )
+
+    return {
+        "widget": box,
+        "wdict": wdict,
+    }
+
 
 @add_display_arg
 def smooth_savitzky_golay_ipy(obj, **kwargs):
