@@ -444,7 +444,7 @@ def print_lines_table_ipy(obj, **kwargs):
         if len(obj.active_elements) != initial_length:
             obj.update_markers()
 
-    # @debounce(0.2)
+    @debounce(0.1)
     def update_table(change):
         lines_information = obj.get_lines_information()
 
