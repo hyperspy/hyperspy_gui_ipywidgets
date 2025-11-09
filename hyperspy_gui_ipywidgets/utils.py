@@ -17,13 +17,14 @@
 # along with  HyperSpy.  If not, see <http://www.gnu.org/licenses/#GPL>.
 
 
+import asyncio
 import functools
 
 import ipywidgets
 from traits.api import Undefined
 import IPython.display
 
-
+from threading import Timer
 
 
 FORM_ITEM_LAYOUT = ipywidgets.Layout(
@@ -75,7 +76,7 @@ def enum2dropdown(trait, description=None, **kwargs):
     return widget
 
 
-def float2floattext(trait, label):
+def float2floattext(trait, label=None):
     description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatText()
     widget.description_tooltip = description_tooltip
@@ -122,3 +123,35 @@ def set_title_container(container, titles):
             container.set_title(index, title)
     except AttributeError:
         container.titles = tuple(titles)
+
+
+def debounce(wait):
+    """
+    Decorator that will postpone a function's execution until after `wait` seconds
+    have elapsed since the last time it was invoked.
+
+    The debounced function is executed from the thread that runs the asyncio
+    event loop (the kernel main thread in Jupyter). Creating or updating
+    ipywidgets from a background thread is not supported: the kernel
+    message state is thread-local (context variables), so scheduling with a
+    timer thread would raise an error and the update would be lost.
+
+    Adapted from https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debouncing
+    """
+    def decorator(fn):
+        timer = None
+        def debounced(*args, **kwargs):
+            nonlocal timer
+            if timer is not None:
+                timer.cancel()
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+            if loop is not None:
+                timer = loop.call_later(wait, lambda: fn(*args, **kwargs))
+            else:
+                timer = Timer(wait, lambda: fn(*args, **kwargs))
+                timer.start()
+        return debounced
+    return decorator
