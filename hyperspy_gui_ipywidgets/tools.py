@@ -371,15 +371,16 @@ def print_edges_table_ipy(obj, **kwargs):
 
 @add_display_arg
 def print_lines_table_ipy(obj, **kwargs):    
-    max_width = '400px'
+    max_width = '440px'
     # Define widgets
     wdict = {}
-    position = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '50px'})
-    width = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '50px'})
-    only_lines = enum2dropdown(obj.traits()["only_lines"], layout={'width': '50px'})
+    position = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '65px'}, step=0.1,)
+    width = ipywidgets.BoundedFloatText(min=0, disabled=False, layout={'width': '65px'}, step=0.1)
+    only_lines = enum2dropdown(obj.traits()["only_lines"], layout={'width': '65px'})
+    # The grid used for the table
     gb = ipywidgets.GridBox(
         layout=ipywidgets.Layout(
-            grid_template_columns='75px 50px 100px 75px 100px',
+            grid_template_columns='70px 70px 100px 100px 100px',
             grid_template_rows='auto',
             padding='0px',
             margin='0px',
@@ -447,7 +448,6 @@ def print_lines_table_ipy(obj, **kwargs):
     @debounce(0.1)
     def update_table(change):
         lines_information = obj.get_lines_information()
-
         items = header_items.copy()
         
         if lines_information is not None:
@@ -460,17 +460,29 @@ def print_lines_table_ipy(obj, **kwargs):
                     element_widget = ipywidgets.ToggleButton(description=element_str, layout={'width': '75px'})
                     element_widget.observe(update_active_elements, names='value')
                     line_widget = ipywidgets.HTML(entry.format(str(line)))
-                    energy_widget = ipywidgets.HTML(entry.format(f"{line_info['energy (keV)']:.2f}"))
-                    weight_widget = ipywidgets.HTML(entry.format(f"{line_info['weight']:.2f}"))
+                    energy_widget = ipywidgets.HTML(entry.format(f"{line_info['energy (keV)']:#.4g}"))
+                    weight_widget = ipywidgets.HTML(entry.format(f"{line_info['weight']:#.4g}"))
                     intensity_widget = ipywidgets.HTML(entry_left.format(line_info['intensity']))
                     items.extend([element_widget, line_widget, energy_widget, weight_widget, intensity_widget])
 
         gb.children = items
 
+    def format_position(change):
+        try:
+            position.value = f"{change['new']:#.4g}"
+        except Exception:
+            # in case, this is a not a number
+            pass
+
+    position.observe(format_position)
     position.observe(update_table)
     width.observe(update_table)
     only_lines.observe(update_table)
     update.on_click(update_table)
+
+    # Initialize the table at the current position
+    format_position({'new': obj.position})
+    update_table(None)
 
     def on_close_clicked(b):
         obj.on = False
