@@ -4,7 +4,7 @@ import ipywidgets
 from traits.api import Undefined
 import IPython.display
 
-
+from threading import Timer
 
 
 FORM_ITEM_LAYOUT = ipywidgets.Layout(
@@ -56,7 +56,7 @@ def enum2dropdown(trait, description=None, **kwargs):
     return widget
 
 
-def float2floattext(trait, label):
+def float2floattext(trait, label=None):
     description_tooltip = trait.desc if trait.desc else ""
     widget = ipywidgets.FloatText()
     widget.description_tooltip = description_tooltip
@@ -103,3 +103,24 @@ def set_title_container(container, titles):
             container.set_title(index, title)
     except AttributeError:
         container.titles = tuple(titles)
+
+
+def debounce(wait):
+    """
+    Decorator that will postpone a function's execution until after `wait` seconds
+    have elapsed since the last time it was invoked.
+
+    Adapted from https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debouncing
+    """
+    def decorator(fn):
+        timer = None
+        def debounced(*args, **kwargs):
+            nonlocal timer
+            def call_it():
+                fn(*args, **kwargs)
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+            timer.start()
+        return debounced
+    return decorator
