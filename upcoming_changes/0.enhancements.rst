@@ -1,0 +1,7 @@
+Group Plot preferences by trait metadata sections using
+:func:`~.grouped_editable_traits`.  Key-binding preferences
+from ``PlotConfig`` now render in an ``Accordion`` with sections:
+General, Navigation, Plot Interaction, Widget Resize, and Model
+Plot.  Tabs with only one group (e.g., General, GUIs) keep a flat
+layout.  The widget dictionary (``wdict``) remains flat for
+backward compatibility.
