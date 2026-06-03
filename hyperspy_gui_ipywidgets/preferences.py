@@ -21,7 +21,12 @@ import traits
 import ipywidgets
 
 from link_traits import link
-from hyperspy.misc.utils import grouped_editable_traits
+
+try:
+    from hyperspy.misc.utils import grouped_editable_traits
+except ImportError:
+    grouped_editable_traits = None
+
 from hyperspy_gui_ipywidgets.utils import (
     labelme, add_display_arg, float2floattext, get_label, str2text,
     set_title_container
@@ -79,7 +84,21 @@ def show_preferences_widget(obj, **kwargs):
         tabdict = {}
         wdict["tab_{}".format(tab)] = tabdict
         tabtraits = tab_obj.traits()
-        grouped = grouped_editable_traits(tab_obj)
+        grouped = grouped_editable_traits(tab_obj) if grouped_editable_traits else None
+
+        if grouped is None:
+            # hyperspy < 2.5: flat rendering fallback
+            ipytab = []
+            for trait_name in tab_obj.editable_traits():
+                trait = tabtraits[trait_name]
+                widget = TRAITS2IPYWIDGETS[type(trait.trait_type)](
+                    trait, get_label(trait, trait_name))
+                ipytab.append(widget)
+                tabdict[trait_name] = widget.children[1]
+                link((tab_obj, trait_name),
+                     (widget.children[1], "value"))
+            ipytabs[tab] = ipywidgets.VBox(ipytab)
+            continue
 
         accordion_sections = []
         accordion_titles = []
