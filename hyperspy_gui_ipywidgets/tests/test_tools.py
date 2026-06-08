@@ -319,3 +319,23 @@ def test_remove_baseline():
     assert wd["lam"].value == 1e7
     br.apply()
     assert s.isig[:10].data.mean() < 5
+
+
+def test_lines_at_energy_interactive():
+    exspy = pytest.importorskip("exspy")
+
+    from exspy._signal_tools import EDSRange
+
+    s = exspy.data.EDS_TEM_FePt_nanoparticles()
+    er = EDSRange(s)
+    wd = er.gui(**KWARGS)["ipywidgets"]["wdict"]
+    assert wd["position"].value == 9.924
+    assert wd["width"].value == 0.2
+    assert wd["only_lines"].value == "all"
+
+    er.position = 6.4
+    assert wd["position"].value == 6.4
+    er.width = 0.3
+    assert wd["width"].value == 0.3
+    er.only_lines = "a"
+    assert wd["only_lines"].value == "a"

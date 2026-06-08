@@ -73,7 +73,10 @@ jobs:
       - name: Install exSpy (dev)
         if: contains( matrix.LABEL, 'dev')
         run: |
-          pip install git+https://github.com/hyperspy/exspy.git
+          # Remove when eXSpy is released with `lines_at_energy` functionality
+          pip install git+https://github.com/ericpre/exspy.git@add_gui_lines_at_energy
+          # pip install git+https://github.com/hyperspy/exspy.git
+
 
       - name: Install
         run: |
