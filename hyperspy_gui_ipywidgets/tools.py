@@ -403,12 +403,14 @@ def smooth_savitzky_golay_ipy(obj, **kwargs):
         tooltip="Perform the operation using the selected range.")
     link((obj, "polynomial_order"), (polynomial_order, "value"))
     link((obj, "window_length"), (window_length, "value"))
-    link((obj, "differential_order"),
-         (differential_order, "value"))
+    link((obj, "differential_order"), (differential_order, "value"))
     # Differential order must be less or equal to polynomial_order
-    link((polynomial_order, "value"),
-         (differential_order, "max"))
-    link((obj, "line_color_ipy"), (color, "value"))
+    link((polynomial_order, "value"), (differential_order, "max"))
+    if hasattr(obj, "line_color_ipy"):
+        # traits removed in hyperspy 2.5.0
+        link((obj, "line_color_ipy"), (color, "value"))
+    else:
+        link((obj, "line_color"), (color, "value"))
     box = ipywidgets.VBox([
         labelme("Window length", window_length),
         labelme("polynomial order", polynomial_order),
@@ -450,11 +452,13 @@ def smooth_lowess_ipy(obj, **kwargs):
     apply = ipywidgets.Button(
         description="Apply",
         tooltip="Perform the operation using the selected range.")
-    link((obj, "smoothing_parameter"),
-         (smoothing_parameter, "value"))
-    link((obj, "number_of_iterations"),
-         (number_of_iterations, "value"))
-    link((obj, "line_color_ipy"), (color, "value"))
+    link((obj, "smoothing_parameter"), (smoothing_parameter, "value"))
+    link((obj, "number_of_iterations"), (number_of_iterations, "value"))
+    if hasattr(obj, "line_color_ipy"):
+        # traits removed in hyperspy 2.5.0
+        link((obj, "line_color_ipy"), (color, "value"))
+    else:
+        link((obj, "line_color"), (color, "value"))
     box = ipywidgets.VBox([
         labelme("Smoothing parameter", smoothing_parameter),
         labelme("Number of iterations", number_of_iterations),
@@ -498,7 +502,11 @@ def smooth_tv_ipy(obj, **kwargs):
          (smoothing_parameter, "value"))
     link((smoothing_parameter_max, "value"),
          (smoothing_parameter, "max"))
-    link((obj, "line_color_ipy"), (color, "value"))
+    if hasattr(obj, "line_color_ipy"):
+        # traits removed in hyperspy 2.5.0
+        link((obj, "line_color_ipy"), (color, "value"))
+    else:
+        link((obj, "line_color"), (color, "value"))
     wdict["smoothing_parameter"] = smoothing_parameter
     wdict["smoothing_parameter_max"] = smoothing_parameter_max
     wdict["color"] = color
