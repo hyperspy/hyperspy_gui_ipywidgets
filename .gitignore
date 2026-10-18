@@ -104,3 +104,4 @@ ENV/
 .idea/
 
 .vscode/
+.omo/

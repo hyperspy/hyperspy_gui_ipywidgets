@@ -2,6 +2,11 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
+## v2.2.0 (UNRELEASED)
+* Add `debounce` decorator to postpone a function's execution until after `wait` seconds
+  have elapsed since the last time it was invoked. ([#95](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/95))
+* Add widget to interactily find X-ray line in a EDS spectrum. ([#95](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/95))
+
 ## v2.1.1 (2026-04-09)
 * Fix privatized eXSpy import. ([#96](https://github.com/hyperspy/hyperspy_gui_ipywidgets/pull/96)).
 

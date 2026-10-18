@@ -25,6 +25,9 @@ GUI:
       hyperspy.Component:
         module: hyperspy_gui_ipywidgets.model
         function: get_component_widget
+      exspy.EDSSpectrum.print_lines_table:
+        module: hyperspy_gui_ipywidgets.tools
+        function: print_lines_table_ipy
       exspy.EELSCLEdge_Component:
         module: hyperspy_gui_ipywidgets.model
         function: get_eelscl_widget
