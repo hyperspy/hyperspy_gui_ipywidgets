@@ -21,6 +21,12 @@ import traits
 import ipywidgets
 
 from link_traits import link
+
+try:
+    from hyperspy.misc.utils import grouped_editable_traits
+except ImportError:
+    grouped_editable_traits = None
+
 from hyperspy_gui_ipywidgets.utils import (
     labelme, add_display_arg, float2floattext, get_label, str2text,
     set_title_container
@@ -74,19 +80,47 @@ def show_preferences_widget(obj, **kwargs):
     ipytabs = {}
     wdict = {}
     for tab in obj.editable_traits():
+        tab_obj = getattr(obj, tab)
         tabdict = {}
         wdict["tab_{}".format(tab)] = tabdict
-        ipytab = []
-        tabtraits = getattr(obj, tab).traits()
-        for trait_name in getattr(obj, tab).editable_traits():
-            trait = tabtraits[trait_name]
-            widget = TRAITS2IPYWIDGETS[type(trait.trait_type)](
-                trait, get_label(trait, trait_name))
-            ipytab.append(widget)
-            tabdict[trait_name] = widget.children[1]
-            link((getattr(obj, tab), trait_name),
-                 (widget.children[1], "value"))
-        ipytabs[tab] = ipywidgets.VBox(ipytab)
+        tabtraits = tab_obj.traits()
+        grouped = grouped_editable_traits(tab_obj) if grouped_editable_traits else None
+
+        if grouped is None:
+            # hyperspy < 2.5: flat rendering fallback
+            ipytab = []
+            for trait_name in tab_obj.editable_traits():
+                trait = tabtraits[trait_name]
+                widget = TRAITS2IPYWIDGETS[type(trait.trait_type)](
+                    trait, get_label(trait, trait_name))
+                ipytab.append(widget)
+                tabdict[trait_name] = widget.children[1]
+                link((tab_obj, trait_name),
+                     (widget.children[1], "value"))
+            ipytabs[tab] = ipywidgets.VBox(ipytab)
+            continue
+
+        accordion_sections = []
+        accordion_titles = []
+        for group_label, trait_names in grouped.items():
+            group_widgets = []
+            for trait_name in trait_names:
+                trait = tabtraits[trait_name]
+                widget = TRAITS2IPYWIDGETS[type(trait.trait_type)](
+                    trait, get_label(trait, trait_name))
+                group_widgets.append(widget)
+                tabdict[trait_name] = widget.children[1]
+                link((tab_obj, trait_name),
+                     (widget.children[1], "value"))
+            accordion_sections.append(ipywidgets.VBox(group_widgets))
+            accordion_titles.append(group_label)
+
+        if len(accordion_sections) > 1:
+            ipytabs[tab] = ipywidgets.Accordion(children=accordion_sections)
+            for i, title in enumerate(accordion_titles):
+                ipytabs[tab].set_title(i, title)
+        else:
+            ipytabs[tab] = accordion_sections[0]
     # This defines the order of the tab in the widget
     titles = ["General", "GUIs", "Plot"]
     ipytabs_ = ipywidgets.Tab(
