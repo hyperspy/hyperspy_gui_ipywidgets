@@ -1,12 +1,14 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
+requires = ["setuptools>=77", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "hyperspy_gui_ipywidgets"
 description = "ipywidgets GUI elements for the HyperSpy framework."
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 readme = "README.md"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 keywords=[
     "data analysis",
     "microscopy",
@@ -20,12 +22,11 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Topic :: Software Development :: Libraries",
   "Topic :: Scientific/Engineering",
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX",
   "Operating System :: Unix",
@@ -41,9 +42,6 @@ dynamic = ["version"]
 
 [project.entry-points."hyperspy.extensions"]
 hyperspy_gui_ipywidgets = "hyperspy_gui_ipywidgets"
-
-[project.license]
-file = "LICENSE"
 
 [project.optional-dependencies]
 tests = [
