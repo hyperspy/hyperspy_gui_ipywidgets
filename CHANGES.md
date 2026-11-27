@@ -2,6 +2,9 @@
   Add a single entry in the corresponding section below.
   See https://keepachangelog.com for details
 
+## v2.2.1 (UNRELEASED)
+
+
 ## v2.2.0 (2026-11-27)
 * Add support for Python 3.14 and 3.15; drop support for Python 3.9 and 3.10.
 * Add `debounce` decorator to postpone a function's execution until after `wait` seconds
