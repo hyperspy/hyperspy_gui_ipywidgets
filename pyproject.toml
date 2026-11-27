@@ -33,7 +33,7 @@ classifiers = [
   "Operating System :: MacOS",
 ]
 dependencies = [
-  "hyperspy>=2.3.0",
+  "hyperspy>=2.6.0",
   "ipywidgets>=8.0",
   "link_traits",
   "ipympl", # for convenience
@@ -92,4 +92,4 @@ include = ["hyperspy_gui_ipywidgets*"]
 [tool.setuptools_scm]
 # Presence enables setuptools_scm, the version will be determine at build time from git
 # The version will be updated by the `prepare_release.py` script
-fallback_version = "2.1.2.dev0"
+fallback_version = "2.2.1.dev0"
